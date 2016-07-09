@@ -2,14 +2,20 @@ doctype html
 html
   head
     title= title
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    link(href='css/bootstrap.min.css', rel='stylesheet')
+    link(rel="stylesheet", href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")
+    script(src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js")
   body
-    nav.navbar.navbar-fixed-top
-      .container-fluid
+    nav.navbar.navbar-default.navbar-fixed-top
+      .container
         ul.nav.navbar-nav
-          li
+          li 
             a(href='/') Home
-          li
+          li 
             a(href='/codeforcesqp') Codeforces Question Picker
+
     block content
+
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js")

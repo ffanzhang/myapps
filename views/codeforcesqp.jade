@@ -2,11 +2,23 @@ extends layout
 
 block content
   .jumbotron(style="background:transparent")
-    .container
+    .container-fluid
       .row
         .col-md-6.col-md-offset-3
-          form(action='/codeforcesqp', method='post')
             .input-group
-              input.form-control(type='text', placeholder='handle', name='handle')
+              input.form-control#handle(type='text', placeholder='handle', name='handle')
               span.input-group-btn
-                button.btn.btn-primary(type='submit') Go!
+                button.btn.btn-primary#submitHandle Go!
+  .container-fluid
+    .col-md-6#rtableSection
+      h5 Recommended Problems
+      table.table.table-bordered.table-condensed#myProblems
+        thead
+        tbody
+    .col-md-6#stableSection
+      h5 Recent Submissions
+      table.table.table-bordered.table-condensed#mySubmissions
+        thead
+        tbody
+    
+  script(src='javascripts/codeforcesqp.js')

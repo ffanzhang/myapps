@@ -1,0 +1,43 @@
+extends layout
+
+block content
+  h5 Recommended Problems
+  table
+    thead
+      tr
+        td Problem
+        td Name
+    tbody
+      each item in rp 
+        tr
+          td #{item.contestId + item.index}
+          td 
+            if item.contestId < 100000 
+              a(href='http://www.codeforces.com/problemset/problem/#{item.contestId}/#{item.index}') #{item.name}
+            else
+              a(href='http://www.codeforces.com/gym/#{item.contestId}') #{item.name} 
+
+  h5 My Recent Submissions 
+  table
+    thead
+      tr
+        td Submission id
+        td Problem
+        td Name
+        td Status
+    tbody
+      each item in sdata.result
+        tr
+          td 
+            if item.contestId < 100000 
+              a(href='http://www.codeforces.com/contest/#{item.contestId}/submission/#{item.id}') #{item.id} 
+            else
+              a(href='http://www.codeforces.com/gym/#{item.contestId}/submission/#{item.id}') #{item.id}
+          td #{item.contestId + item.problem.index}
+          td 
+            if item.contestId < 100000 
+              a(href='http://www.codeforces.com/problemset/problem/#{item.contestId}/#{item.problem.index}') #{item.problem.name}
+            else
+              a(href='http://www.codeforces.com/gym/#{item.contestId}') #{item.problem.name} 
+          td #{item.verdict}
+      

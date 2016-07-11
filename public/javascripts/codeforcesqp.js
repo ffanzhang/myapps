@@ -1,19 +1,8 @@
 $(function() {
+
   var cache = {};
   var completedQuestions = {};
   var recommendedProblems = [];
-  var preprocessReady = false;
-  var problemsReady = false;
-  $('#stableSection > h5').hide();
-  $('#rtableSection > h5').hide();
-
-  var waitForPreprocess = function() {
-    while (!preprocessReady) {}
-  };
-
-  var waitForProblems = function() {
-    while (!problemsReady) {}
-  }
 
   var recordCompletedQuestions = function(data) {
     for (var i = 0; i < data.result.length; i++) {
@@ -28,7 +17,6 @@ $(function() {
   var displaySubmissions = function(data, numDisplay) {
     var rowopen = '<tr>';
     var rowclose = '</tr>';
-    $('#stableSection > h5').show();
     $('table#mySubmissions > thead').empty(); 
     $('table#mySubmissions > tbody').empty(); 
 
@@ -69,7 +57,6 @@ $(function() {
   var displayProblems = function(data, numDisplay) {
     var rowopen = '<tr>';
     var rowclose = '</tr>';
-    $('#rtableSection > h5').show();
     $('table#myProblems > thead').empty();
     $('table#myProblems > tbody').empty();
 
@@ -99,7 +86,6 @@ $(function() {
   };
 
   var getRecommended = function(problemSet) {
-    waitForPreprocess();
     recommendedProblems = [];
     for (var i = 0; i < problemSet.result.problems.length; i++) {
       var lookupKey = problemSet.result.problems[i].contestId +
@@ -122,20 +108,42 @@ $(function() {
   };
 
   $('button#submitHandle').click(function() {
+    $('#submitHandle').attr('disabled', true);
     var handle = $('#handle').val();
-    preprocessReady = false;
-    $.get("http://www.codeforces.com/api/problemset.problems", function(data, status) {
-      getRecommended(data);
+    var ANIMATION_TIME = 300;
+
+    var pHideRTable = new Promise(function(resolve, reject) {
+      $('#rtableSection').hide(ANIMATION_TIME, resolve(0));
+    });
+
+    var pHideSTable = new Promise(function(resolve, reject) {
+      $('#stableSection').hide(ANIMATION_TIME, resolve(0));
+    });
+
+    var pSubmissions = new Promise(function(resolve, reject) {
+      $.get("http://www.codeforces.com/api/user.status?handle=" + handle, function(data, status) {
+        recordCompletedQuestions(data);
+        resolve(data);
+        displaySubmissions(data, 10);
+        $('#stableSection').show(ANIMATION_TIME);
+        cache['mySubmissions'] = data;
+      });
+    });
+
+    var pProblems = new Promise(function(resolve, reject) {
+      $.get("http://www.codeforces.com/api/problemset.problems", function(data, status) {
+        resolve(data);
+       });
+    });
+
+    Promise.all([pProblems, pSubmissions, pHideRTable, pHideSTable]).then(function(values) {
+      getRecommended(values[0]);
       sortRecommended();
       displayProblems(recommendedProblems, 10);
-      cache['myProblems'] = data;
+      $('#rtableSection').show(ANIMATION_TIME);
+      cache['myProblems'] = values[0];
+      $('#submitHandle').attr('disabled', false);
     });
 
-    $.get("http://www.codeforces.com/api/user.status?handle=" + handle, function(data, status) {
-      displaySubmissions(data, 10);
-      recordCompletedQuestions(data);
-      cache['mySubmissions'] = data;
-    });
   });
-
 });

@@ -1,6 +1,6 @@
 $(function() {
 
-  var cache = {};
+  var cache = new Object();
   var completedQuestions = {};
   var recommendedProblems = [];
 
@@ -107,8 +107,28 @@ $(function() {
     });
   };
 
+  var sizeLookup = [50, 10];
+  var symbolLookup = ['glyphicon-chevron-down',
+  'glyphicon-chevron-up'];
+  var pexpanded = 0;
+  $('button#moreP').click(function() {
+    displayProblems(recommendedProblems, sizeLookup[pexpanded]);
+    $('button#moreP > span').removeClass(symbolLookup[pexpanded]);
+    pexpanded ^=1;
+    $('button#moreP > span').addClass(symbolLookup[pexpanded]);
+  });
+
+  var sexpanded = 0;
+  $('button#moreS').click(function() {
+    displaySubmissions(cache.mySubmissions, sizeLookup[sexpanded]);
+    $('button#moreS > span').removeClass(symbolLookup[sexpanded]);
+    sexpanded ^= 1;
+    $('button#moreS > span').addClass(symbolLookup[sexpanded]);
+  });
+
   $('button#submitHandle').click(function() {
     $('#submitHandle').attr('disabled', true);
+    completedQuestions = {};
     var handle = $('#handle').val();
     var ANIMATION_TIME = 300;
 
@@ -126,14 +146,14 @@ $(function() {
         resolve(data);
         displaySubmissions(data, 10);
         $('#stableSection').show(ANIMATION_TIME);
-        cache['mySubmissions'] = data;
+        cache.mySubmissions = data;//jQuery.extend(true, {}, data);
       });
     });
 
     var pProblems = new Promise(function(resolve, reject) {
       $.get("http://www.codeforces.com/api/problemset.problems", function(data, status) {
         resolve(data);
-       });
+      });
     });
 
     Promise.all([pProblems, pSubmissions, pHideRTable, pHideSTable]).then(function(values) {
@@ -141,7 +161,7 @@ $(function() {
       sortRecommended();
       displayProblems(recommendedProblems, 10);
       $('#rtableSection').show(ANIMATION_TIME);
-      cache['myProblems'] = values[0];
+      cache.myProblems = values[0];//jQuery.extend(true, {}, values[0]);
       $('#submitHandle').attr('disabled', false);
     });
 

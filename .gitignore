@@ -2,3 +2,5 @@ node_modules
 a.out
 input.txt
 dummy
+*.sh
+

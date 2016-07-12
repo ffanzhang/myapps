@@ -2,18 +2,34 @@ extends layout
 
 block content
   .container
+    .btn-group(role='toolbar' aria-label='...')
+      .btn-group(role='group')
+        button.btn.btn-default.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+          aria-expanded='false') Language 
+          span.caret
+        ul.dropdown-menu#lang(aria-labelledby='langSelect')
+          li 
+            a(value='python3') Python 3
+          li
+            a(value='gcc') C
+          li 
+            a(value='g++') C++
 
-    button.btn.btn-default Python 3
-    .btn-group.pull-right#editorSelector(role='group', aria-label='...')
       .btn-group(role='group')
-        button.btn.btn-default#vim vim
-      .btn-group(role='group')
-        button.btn.btn-default#emacs emacs
-      .btn-group(role='group')
-        button.btn.btn-default#sublime sublime
-      .btn-group(role='group')
-        button.btn.btn-default#default default
+        button.btn.btn-default.dropdown-toggle#editorSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+          aria-expanded='false') Editor Mode 
+          span.caret
+        ul.dropdown-menu#editor(aria-labelledby='editorSelect')
+          li 
+            a(value='vim') vim
+          li
+            a(value='emacs') emacs
+          li 
+            a(value='sublime') sublime 
+          li
+            a(value='default') default
 
+  .container
     form
       .form-group
         textarea.form-control#code(rows='30' name='code')
@@ -35,44 +51,38 @@ block content
   script.
     $(function() {
       var editor = CodeMirror.fromTextArea(document.getElementById("code"));
+      var compiler = "python3"
       editor.setOption("lineNumbers", true);
       editor.setOption("mode", "python");
-      $('button#default').addClass('active');
-
-      $('button#vim').click(function() {
-        $('#editorSelector > div > button').removeClass('active');
-        editor.setOption("keyMap", "vim");
-        $('button#vim').addClass('active');
-      });
-
-      $('button#emacs').click(function() {
-        $('#editorSelector > div > button').removeClass('active');
-        editor.setOption("keyMap", "emacs");
-        $('button#emacs').addClass('active');
-      });
-
-      $('button#sublime').click(function() {
-        $('#editorSelector > div > button').removeClass('active');
-        editor.setOption("keyMap", "sublime");
-        $('button#sublime').addClass('active');
-      });
-
-      $('button#default').click(function() {
-        $('#editorSelector > div > button').removeClass('active');
-        editor.setOption("keyMap", "default");
-        $('button#default').addClass('active');
-      });
 
       $('button#compile').click(function() {
         $.ajax({
           type: "POST",
           url: "/ide",
           data: "code=" + encodeURIComponent(editor.getValue()) + "&input=" 
-                  + encodeURIComponent($('#input').val()), 
+                  + encodeURIComponent($('#input').val()) + "&compiler="
+                  + encodeURIComponent(compiler), 
           success: function(data) {
             console.log(data);
             $('#output').val(data);
           }
         });
       });
+
+      $('.dropdown-menu#editor li a').click(function() {
+        selection = $(this).text();
+        $('#editorSelect').text(selection + ' ');
+        var value = $(this).attr('value');
+        editor.setOption("keyMap", value);
+        $("<span class='caret'></span>").appendTo("#editorSelect");
+      });
+
+      $('.dropdown-menu#lang li a').click(function() {
+        selection = $(this).text();
+        $('#langSelect').text(selection + ' ');
+        var value = $(this).attr('value');
+        compiler = value;
+        $("<span class='caret'></span>").appendTo("#langSelect");
+      });
+
     });

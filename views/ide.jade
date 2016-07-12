@@ -29,6 +29,30 @@ block content
           li
             a(value='default') default
 
+      .btn-group(role='group')
+        button.btn.btn-default.dropdown-toggle#themeSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+          aria-expanded='false') Theme 
+          span.caret
+        ul.dropdown-menu#theme(aria-labelledby='themeSelect')
+          li 
+            a(value='solarized dark') solarized dark 
+          li
+            a(value='solarized light') solarized light
+          li 
+            a(value='blackboard') blackboard 
+          li 
+            a(value='dracula') dracula 
+          li 
+            a(value='monokai') monokai 
+          li 
+            a(value='zenburn') zenburn 
+          li 
+            a(value='tomorrow-night-bright') tomorrow-night-bright 
+          li 
+            a(value='tomorrow-night-eighties') tomorrow-night-eighties 
+          li
+            a(value='default') default
+
   .container
     form
       .form-group
@@ -53,7 +77,6 @@ block content
       var editor = CodeMirror.fromTextArea(document.getElementById("code"));
       var compiler = "python3"
       editor.setOption("lineNumbers", true);
-      editor.setOption("mode", "python");
 
       $('button#compile').click(function() {
         $.ajax({
@@ -74,7 +97,7 @@ block content
         $('#editorSelect').text(selection + ' ');
         var value = $(this).attr('value');
         editor.setOption("keyMap", value);
-        $("<span class='caret'></span>").appendTo("#editorSelect");
+       $("<span class='caret'></span>").appendTo("#editorSelect");
       });
 
       $('.dropdown-menu#lang li a').click(function() {
@@ -83,6 +106,14 @@ block content
         var value = $(this).attr('value');
         compiler = value;
         $("<span class='caret'></span>").appendTo("#langSelect");
+      });
+
+      $('.dropdown-menu#theme li a').click(function() {
+        selection = $(this).text();
+        $('#themeSelect').text(selection + ' ');
+        var value = $(this).attr('value');
+        editor.setOption("theme", value);
+        $("<span class='caret'></span>").appendTo("#themeSelect");
       });
 
     });

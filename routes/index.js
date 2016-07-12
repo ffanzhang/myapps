@@ -61,64 +61,62 @@ router.post('/ide', function(req, res, next) {
     });
   } else if (compiler === 'gcc') {
     var gcc = spawn('gcc', [filename, '-o', executablename]);
+    var errorString = "";
     gcc.stdout.on('data', function(data) {
-      removeAll();
-      res.send(String(data));
+      errorString += String(data);
     });
 
     gcc.stderr.on('data', function(data) {
-      removeAll();
-      res.send(String(data));
+      errorString += String(data);
     });
 
     gcc.on('close', function(data) {
       if (data === 0) {
         var run = exec('./' + executablename + ' < ' + inputfilename);
         run.stdout.on('data', function(out) {
-          removeAll();
           res.send(String(out));
         });
 
         run.stderr.on('data', function(out) {
-          removeAll();
-          console.log(String(out));
+          res.send(String(out));
         });
 
         run.on('close', function(out) {
           removeAll();
-          console.log(String(out));
         });
+      } else {
+        removeAll();
+        res.send(errorString);
       }
     });
   } else if (compiler === 'g++') {
     var gpp = spawn('g++', [filename, '-o', executablename]);
+    var errorString = "";
     gpp.stdout.on('data', function(data) {
-      removeAll();
-      res.send(String(data));
+      errorString += String(data);
     });
 
     gpp.stderr.on('data', function(data) {
-      removeAll();
-      res.send(String(data));
+      errorString += String(data);
     });
 
     gpp.on('close', function(data) {
       if (data === 0) {
         var run = exec('./' + executablename + ' < ' + inputfilename);
         run.stdout.on('data', function(out) {
-          removeAll();
           res.send(String(out));
         });
 
         run.stderr.on('data', function(out) {
-          removeAll();
-          console.log(String(out));
+          res.send(String(out));
         });
 
         run.on('close', function(out) {
           removeAll();
-          console.log(String(out));
         });
+      } else {
+        removeAll();
+        res.send(errorString);
       }
     });
   } else {}

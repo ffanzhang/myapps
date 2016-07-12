@@ -1,0 +1,38 @@
+extends layout
+
+block content
+  .container
+    h4 C++
+    form
+      .form-group
+        textarea.form-control#code(rows='30' name='code')
+
+  .container
+    button.btn.btn-default#compile Fire in the hole!
+
+  .container
+    .row
+      .col-md-6
+        h4 Input
+        form
+          textarea.form-control#input(rows='5' name='input')
+      .col-md-6
+        h4 Output
+        form
+          textarea.form-control#output(rows='5' name='output')
+
+  script.
+    $(function() {
+      $('button#compile').click(function() {
+        $.ajax({
+          type: "POST",
+          url: "/ide",
+          data: "code=" + encodeURIComponent($('#code').val()) + "&input=" 
+                  + encodeURIComponent($('#input').val()), 
+          success: function(data) {
+            console.log(data);
+            $('#output').val(data);
+          }
+        });
+      });
+    });

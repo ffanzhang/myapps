@@ -2,7 +2,18 @@ extends layout
 
 block content
   .container
-    h4 Python 3
+
+    button.btn.btn-default Python 3
+    .btn-group.pull-right#editorSelector(role='group', aria-label='...')
+      .btn-group(role='group')
+        button.btn.btn-default#vim vim
+      .btn-group(role='group')
+        button.btn.btn-default#emacs emacs
+      .btn-group(role='group')
+        button.btn.btn-default#sublime sublime
+      .btn-group(role='group')
+        button.btn.btn-default#default default
+
     form
       .form-group
         textarea.form-control#code(rows='30' name='code')
@@ -23,10 +34,33 @@ block content
 
   script.
     $(function() {
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        keyMap: "default",
-        mode: "python"
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"));
+      editor.setOption("lineNumbers", true);
+      editor.setOption("mode", "python");
+      $('button#default').addClass('active');
+
+      $('button#vim').click(function() {
+        $('#editorSelector > div > button').removeClass('active');
+        editor.setOption("keyMap", "vim");
+        $('button#vim').addClass('active');
+      });
+
+      $('button#emacs').click(function() {
+        $('#editorSelector > div > button').removeClass('active');
+        editor.setOption("keyMap", "emacs");
+        $('button#emacs').addClass('active');
+      });
+
+      $('button#sublime').click(function() {
+        $('#editorSelector > div > button').removeClass('active');
+        editor.setOption("keyMap", "sublime");
+        $('button#sublime').addClass('active');
+      });
+
+      $('button#default').click(function() {
+        $('#editorSelector > div > button').removeClass('active');
+        editor.setOption("keyMap", "default");
+        $('button#default').addClass('active');
       });
 
       $('button#compile').click(function() {

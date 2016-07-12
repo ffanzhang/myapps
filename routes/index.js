@@ -24,7 +24,6 @@ router.post('/ide', function(req, res, next) {
   var out = "";
 
   var touch = exec('touch dummy');
-  //var hello = exec('echo \"' + source.toString() + '\" > dummy.cpp');
   fs.writeFileSync('dummy', source);
   fs.writeFileSync('input.txt', input);
   var cat = exec('cat dummy');
@@ -60,12 +59,23 @@ router.post('/ide', function(req, res, next) {
     }
   });
 */
+  var removeAll = function() {
+    var rm = exec('rm dummy');
+    var rm2 = exec('rm a.out');
+    var rm3 = exec('rm input.txt');
+  };
+
   python3.stdout.on('data', function(out) {
     console.log(String(out));
+    removeAll();
     res.send(String(out));
   });
 
-  var rm2 = exec('rm a.out');
+  python3.stderr.on('data', function(out) {
+    console.log(String(out));
+    removeAll();
+    res.send(String(out));
+  });
 
 });
 

@@ -23,11 +23,17 @@ block content
 
   script.
     $(function() {
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        keyMap: "default",
+        mode: "python"
+      });
+
       $('button#compile').click(function() {
         $.ajax({
           type: "POST",
           url: "/ide",
-          data: "code=" + encodeURIComponent($('#code').val()) + "&input=" 
+          data: "code=" + encodeURIComponent(editor.getValue()) + "&input=" 
                   + encodeURIComponent($('#input').val()), 
           success: function(data) {
             console.log(data);

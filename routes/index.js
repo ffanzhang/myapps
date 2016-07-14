@@ -92,7 +92,7 @@ router.post('/ide', function(req, res, next) {
         });
       } else {
         removeAll();
-        res.send(errorString);
+        res.send(output);
       }
     });
   } else if (compiler === 'g++') {
@@ -123,7 +123,7 @@ router.post('/ide', function(req, res, next) {
         });
       } else {
         removeAll();
-        res.send(errorString);
+        res.send(output);
       }
     });
   } else {

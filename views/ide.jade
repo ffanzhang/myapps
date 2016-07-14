@@ -75,8 +75,19 @@ block content
       var editor = CodeMirror.fromTextArea(document.getElementById("code"));
       var compiler = "python3"
       editor.setOption("lineNumbers", true);
+      editor.setOption("mode", "python");
 
-      $('button#compile').click(function() {
+      editor.on("inputRead", function(cm, event) {
+        var ch = cm.doc.getLine(event.to.line).substr(event.to.ch, 1);
+
+        // for now only autocomplete for alphanumeric chars
+        var alnum= /[A-Za-z0-9]/g;
+        if (alnum.test(ch)) {
+          editor.showHint({completeSingle: false});
+        }
+      });
+
+      var sendRunRequest = function() {
         $.ajax({
           type: "POST",
           url: "/ide",
@@ -88,7 +99,12 @@ block content
             $('#output').val(data);
           }
         });
-      });
+      };
+
+      editor.setOption("extraKeys", {"Ctrl-Enter": sendRunRequest, 
+                                      "Ctrl-Space": "autocomplete"});
+
+      $('button#compile').click(sendRunRequest);
 
       $('.dropdown-menu#editor li a').click(function() {
         selection = $(this).text();
@@ -102,6 +118,13 @@ block content
         selection = $(this).text();
         $('#langSelect').text(selection + ' ');
         var value = $(this).attr('value');
+        if (value === 'python3') {
+          editor.setOption("mode", "python");
+        } else if (value === 'gcc') {
+          editor.setOption("mode", "text/x-csrc");
+        } else if (value === 'g++') {
+          editor.setOption("mode", "text/x-c++src");
+        }
         compiler = value;
         $("<span class='caret'></span>").appendTo("#langSelect");
       });

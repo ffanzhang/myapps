@@ -49,40 +49,46 @@ router.post('/ide', function(req, res, next) {
 
   if (compiler === 'python3') {
     var python3 = exec('python3 ' +  filename + ' < ' + inputfilename);
+    var output = ""
 
     python3.stdout.on('data', function(out) {
-      removeAll();
-      res.send(String(out));
+      output += String(out);
     });
 
     python3.stderr.on('data', function(out) {
-      removeAll();
-      res.send(String(out));
+      output += String(out);
     });
+
+    python3.on('close', function(out) {
+      removeAll();
+      res.send(output);
+    });
+
   } else if (compiler === 'gcc') {
     var gcc = spawn('gcc', [filename, '-o', executablename]);
-    var errorString = "";
+    var output = "";
     gcc.stdout.on('data', function(data) {
-      errorString += String(data);
+      output += String(data);
     });
 
     gcc.stderr.on('data', function(data) {
-      errorString += String(data);
+      output += String(data);
     });
 
     gcc.on('close', function(data) {
       if (data === 0) {
         var run = exec('./' + executablename + ' < ' + inputfilename);
         run.stdout.on('data', function(out) {
-          res.send(String(out));
+          output += String(out);
         });
 
         run.stderr.on('data', function(out) {
-          res.send(String(out));
+          output += String(out);
         });
 
         run.on('close', function(out) {
           removeAll();
+          res.send(output);
         });
       } else {
         removeAll();
@@ -91,35 +97,37 @@ router.post('/ide', function(req, res, next) {
     });
   } else if (compiler === 'g++') {
     var gpp = spawn('g++', [filename, '-o', executablename]);
-    var errorString = "";
+    var output = "";
     gpp.stdout.on('data', function(data) {
-      errorString += String(data);
+      output += String(data);
     });
 
     gpp.stderr.on('data', function(data) {
-      errorString += String(data);
+      output += String(data);
     });
 
     gpp.on('close', function(data) {
       if (data === 0) {
         var run = exec('./' + executablename + ' < ' + inputfilename);
         run.stdout.on('data', function(out) {
-          res.send(String(out));
+          output += String(out);
         });
 
         run.stderr.on('data', function(out) {
-          res.send(String(out));
+          output += String(out);
         });
 
         run.on('close', function(out) {
           removeAll();
+          res.send(output);
         });
       } else {
         removeAll();
         res.send(errorString);
       }
     });
-  } else {}
+  } else {
+  }
 
 });
 

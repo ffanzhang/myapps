@@ -5,4 +5,7 @@ dummy
 *.sh
 *.log
 *.orig
+server.crt
+server.csr
+server.key
 

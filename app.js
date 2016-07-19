@@ -31,6 +31,7 @@ app.use('/users', users);
 
 app.use(function(req, res, next) {
   var protocol = (req.headers['x-forwarded-proto'] || '').toLowerCase();
+  console.log(protocol);
 
   if (protocol != 'http') {
     next();

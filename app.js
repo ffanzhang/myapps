@@ -10,9 +10,11 @@ var users = require('./routes/users');
 
 var app = express();
 
+console.log(app.get('env'));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.set('trust proxy', true);
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -21,22 +23,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-if (app.get('env') == 'production') {
-  app.use(function(req, res, next) {
-    if (req.protocol != 'http') {
-      next();
-    } else {
-      res.redirect('https://' + req.headers.host + req.url);
-    }
-  });
-}
-
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'node_modules/codemirror')));
 
 app.use('/', routes);
 app.use('/users', users);
-console.log(app.get('env'));
+
+app.use(function(req, res, next) {
+  var protocol = (req.headers['x-forwarded-proto'] || '').toLowerCase();
+
+  if (protocol != 'http') {
+    next();
+  } else {
+    res.redirect('https://' + req.hostname + req.url);
+  }
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

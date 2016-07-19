@@ -21,14 +21,6 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-if (app.get('env') == 'production') {
-  http.get('*', function(req, res) {
-    if (!req.secure) {
-      res.redirect('https://fansapps.herokuapp.com' + req.url);
-    }
-  });
-}
-
 /**
  * Listen on provided port, on all network interfaces.
  */

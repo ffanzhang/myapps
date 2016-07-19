@@ -23,10 +23,10 @@ app.use(cookieParser());
 
 if (app.get('env') == 'production') {
   app.use(function(req, res, next) {
-    if (req.secure) {
+    if (req.protocol != 'http') {
       next();
     } else {
-      res.redirect('https://fansapps.herokuapp.com' + req.url);
+      res.redirect('https://' + req.headers.host + req.url);
     }
   });
 }

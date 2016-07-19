@@ -25,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'node_modules/codemirror')));
 
 app.use('/', routes);
 app.use('/users', users);
+console.log(app.get('env'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

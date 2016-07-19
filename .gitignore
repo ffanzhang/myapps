@@ -3,4 +3,5 @@ a.out
 input.txt
 dummy
 *.sh
+*.log
 

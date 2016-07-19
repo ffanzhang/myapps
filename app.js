@@ -23,7 +23,7 @@ app.use(cookieParser());
 
 if (app.get('env') == 'production') {
   app.use(function(req, res, next) {
-    if (req.headers.x-forwarded-proto && req.headers.x-forwarded-proto.toLowerCase() === 'https') {
+    if (req.headers['x-forwarded-proto'] && req.headers.x-forwarded-proto.toLowerCase() === 'https') {
       next();
     } else {
       res.redirect('https://fansapps.herokuapp.com' + req.url);

@@ -18,6 +18,8 @@ if (app.get('env') == 'production') {
   app.use(function(req, res, next) {
     if (!req.secure) {
       res.redirect('https://fansapps.herokuapp.com' + req.url);
+    } else {
+      next();
     }
   });
 }

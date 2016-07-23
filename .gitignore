@@ -2,6 +2,7 @@ node_modules
 a.out
 input.txt
 dummy
+*.orig
 *.sh
 *.log
 *.orig

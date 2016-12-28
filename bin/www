@@ -7,19 +7,17 @@
 var app = require('../app');
 var debug = require('debug')('MyApps:server');
 var http = require('http');
+var https = require('https');
 var fs = require('fs');
 
-if (app.get('env') == 'development') {
+if (app.get('env') != 'production') {
   // mini development ssl server
   var https = require('https');
   const options = {
     key: fs.readFileSync('server.key'),
     cert: fs.readFileSync('server.crt')
   }
-  https.createServer(options, function(req, res) {
-    res.writeHead(200);
-    res.end("hello world\n");
-  }).listen(4000);
+  https.createServer(options, app).listen(4000);
 }
 
 /**

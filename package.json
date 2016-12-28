@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "bluebird": "^3.4.7",
     "body-parser": "~1.15.1",
     "bootstrap": "^3.3.6",
     "codemirror": "^5.16.0",

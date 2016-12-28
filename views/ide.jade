@@ -140,4 +140,31 @@ block content
         $("<span class='caret'></span>").appendTo("#themeSelect");
       });
 
+      var pLanguage = window.localStorage.getItem("fa_preferred_language");
+      var pEditor = window.localStorage.getItem("fa_preferred_editor");
+      var pTheme = window.localStorage.getItem("fa_preferred_theme");
+      if (pLanguage) {
+        var lMap = {'python3': 'Python 3', 'g++': 'C++', 'gcc': 'C'};
+        compiler = pLanguage;
+        if (pLanguage === 'python3') {
+          editor.setOption("mode", "python");
+        } else if (pLanguage === 'gcc') {
+          editor.setOption("mode", "text/x-csrc");
+        } else if (pLanguage === 'g++') {
+          editor.setOption("mode", "text/x-c++src");
+        }
+        $('#langSelect').text(lMap[pLanguage] + ' ');
+        $("<span class='caret'></span>").appendTo("#themeSelect");
+      }
+      if (pEditor) {
+        editor.setOption("keyMap", pEditor);
+        $('#editorSelect').text(pEditor + ' ');
+        $("<span class='caret'></span>").appendTo("#editorSelect");
+      }
+      if (pTheme) {
+        editor.setOption("theme", pTheme);
+        $('#themeSelect').text(pTheme + ' ');
+        $("<span class='caret'></span>").appendTo("#themeSelect");
+      }
+
     });

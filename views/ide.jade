@@ -5,7 +5,7 @@ block content
     .btn-group(role='toolbar' aria-label='...')
       .btn-group(role='group')
         button.btn.btn-default.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-          aria-expanded='false') Language 
+          aria-expanded='false' style="width: 100px;") Language 
           span.caret
         ul.dropdown-menu#lang(aria-labelledby='langSelect')
           li 
@@ -53,10 +53,10 @@ block content
           li
             a(value='default') default
 
-  .container
-    textarea#code(rows='30' name='code')
+  .container(style="margin-top: 16px;")
+    textarea#code(rows='30' name='code' style="border-radius: 4px;")
 
-  .container
+  .container(style="margin-top: 16px;")
     button.btn.btn-default#compile Fire in the hole!
 
   .container
@@ -95,6 +95,7 @@ block content
         $('#editorSelect').text(selection + ' ');
         var value = $(this).attr('value');
         editor.setOption("keyMap", value);
+        window.localStorage.setItem("fa_preferred_editor", value);
        $("<span class='caret'></span>").appendTo("#editorSelect");
       });
 
@@ -103,6 +104,7 @@ block content
         $('#langSelect').text(selection + ' ');
         var value = $(this).attr('value');
         compiler = value;
+        window.localStorage.setItem("fa_preferred_language", value);
         $("<span class='caret'></span>").appendTo("#langSelect");
       });
 
@@ -111,6 +113,7 @@ block content
         $('#themeSelect').text(selection + ' ');
         var value = $(this).attr('value');
         editor.setOption("theme", value);
+        window.localStorage.setItem("fa_preferred_theme", value);
         $("<span class='caret'></span>").appendTo("#themeSelect");
       });
 

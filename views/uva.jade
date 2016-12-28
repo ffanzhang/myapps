@@ -1,0 +1,70 @@
+extends layout
+
+block content
+  .jumbotron(style="background:transparent")
+    .container-fluid
+      .row
+        .col-md-6.col-md-offset-3
+            .input-group
+              input.form-control#handle(type='text', placeholder='username', name='handle')
+              span.input-group-btn
+                button.btn.btn-primary#submitHandle Go!
+      .row
+        .col-md-6.col-md-offset-3
+          table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px; border-radius: 4px;")
+            td ID
+            td Number
+            td Title
+            td Solves
+
+  script.
+    const UVA_LOCAL_USERNAME = "fa_preferred_uva_username";
+    var getQ = function(username) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var response = JSON.parse(this.responseText);
+          var problems = response.problems;
+          var html = '';
+          var firstCouple = 20;
+          for (var j = 0; j < firstCouple; j++) {
+            html += "<tr>";
+            for (var i = 0; i < 4; i++) {
+              var content = String(problems[j][i]);
+              if (i == 1) {
+                var url = '//uva.onlinejudge.org/external/';
+                if (content.length < 4) {
+                  url += content[0] + '/' + content + '.pdf';
+                } else {
+                  url += content.substring(0, 3) + '/' + content + '.pdf';
+                }
+                html += "<td><a href='" + url + "' target='_blank'>" + content + "</a></td>";
+              } else {
+                html += "<td>" + problems[j][i] + "</td>";
+              }
+            }
+            html += "</tr>";
+          }
+          document.getElementById('problems').children[0].innerHTML += html;
+          document.getElementById('problems').style.display = "table";
+        }
+      }
+        
+      var url = '/uva/problems/recommended/' + username;
+      xhttp.open('GET', url, true);
+      xhttp.send();
+    }
+    document.getElementById('submitHandle').onclick = function() {
+      var username = document.getElementById('handle').value;
+      window.localStorage.setItem(UVA_LOCAL_USERNAME, username);
+      getQ(username);
+    }
+    document.addEventListener("DOMContentLoaded", function(event) {
+      var username = window.localStorage.getItem(UVA_LOCAL_USERNAME);
+      if (username) {
+        document.getElementById('handle').value = username;
+        getQ(username);
+      }
+    });
+    
+    

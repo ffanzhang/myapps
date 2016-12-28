@@ -33,15 +33,15 @@ $(function() {
       var index = data.result[i].problem.index;
       var name = data.result[i].problem.name
         if (contestId < 100000) {
-          var idCell = "<td><a href='http://www.codeforces.com/contest/" + contestId 
+          var idCell = "<td><a href='https://www.codeforces.com/contest/" + contestId 
             + "/submission/" + id + "' target='_blank'>" + id + "</a></td>";
-          var problemCell = "<td><a href='http://www.codeforces.com/problemset/problem/" + contestId
+          var problemCell = "<td><a href='https://www.codeforces.com/problemset/problem/" + contestId
             + "/" + index + "' target='_blank'>" + name + "</a></td>";
 
         } else {
-          var idCell = "<td><a href='http://www.codeforces.com/gym/" + contestId +
+          var idCell = "<td><a href='https://www.codeforces.com/gym/" + contestId +
             "/submission/" + id + "' target='_blank'>" + id + "</a></td>";
-          var problemCell = "<td><a href='http://www.codeforces.com/gym/" + contestId + "' target='_blank'>" + name + "</a></td>";
+          var problemCell = "<td><a href='https://www.codeforces.com/gym/" + contestId + "' target='_blank'>" + name + "</a></td>";
         }
       var key = '<td>' + contestId + index + '</td>';
       var verdict = '<td>' + data.result[i].verdict + '</td>';
@@ -71,10 +71,10 @@ $(function() {
       var name = data[i].name;
       var key = '<td>' + contestId + index + '</td>'
         if (contestId < 100000) {
-          var problemCell = "<td><a href='http://www.codeforces.com/problemset/problem/" + contestId
+          var problemCell = "<td><a href='https://www.codeforces.com/problemset/problem/" + contestId
             + "/" + index + "' target='_blank'>" + name + "</a></td>";
         } else {
-          var problemCell = "<td><a href='http://www.codeforces.com/gym/" + contestId + "' target='_blank'>" + name + "</a></td>";
+          var problemCell = "<td><a href='https://www.codeforces.com/gym/" + contestId + "' target='_blank'>" + name + "</a></td>";
         }
 
       var name = '<td>' + data[i].name + '</td>'
@@ -141,7 +141,7 @@ $(function() {
     });
 
     var pSubmissions = new Promise(function(resolve, reject) {
-      $.get("http://www.codeforces.com/api/user.status?handle=" + handle, function(data, status) {
+      $.get("https://www.codeforces.com/api/user.status?handle=" + handle, function(data, status) {
         recordCompletedQuestions(data);
         resolve(data);
         displaySubmissions(data, 10);
@@ -151,7 +151,7 @@ $(function() {
     });
 
     var pProblems = new Promise(function(resolve, reject) {
-      $.get("http://www.codeforces.com/api/problemset.problems", function(data, status) {
+      $.get("https://www.codeforces.com/api/problemset.problems", function(data, status) {
         resolve(data);
       });
     });

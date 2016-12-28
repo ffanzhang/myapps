@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var uva = require('./routes/uva');
+var codeforces = require('./routes/codeforces');
 var enforce = require('express-sslify');
 
 var app = express();
@@ -35,6 +37,8 @@ app.use(express.static(path.join(__dirname, 'node_modules/codemirror')));
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/uva', uva);
+app.use('/codeforces', codeforces);
 /*
 app.use(function(req, res, next) {
   var protocol = (req.headers['x-forwarded-proto'] || '').toLowerCase();

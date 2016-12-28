@@ -1,0 +1,71 @@
+extends layout
+
+block content
+  .jumbotron(style="background:transparent")
+    .container-fluid
+      .row
+        .col-md-6.col-md-offset-3
+            .input-group
+              input.form-control#handle(type='text', placeholder='handle', name='handle')
+              span.input-group-btn
+                button.btn.btn-primary#submitHandle Go!
+      .row
+        .col-md-6.col-md-offset-3#rtableSection
+          table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px;")
+            tr
+              td Problem Id
+              td Solved
+        
+  script.
+    const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
+    var getQ = function(username) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var response = JSON.parse(this.responseText);
+          var html = '';
+          var firstCouple = 20;
+          console.log(response);
+          for (var j = 0; j < firstCouple; j++) {
+            var contestId = response[j].contestId;
+            var index = response[j].index;
+            url = "http://codeforces.com/";
+            if (contestId < 100000) {
+              url += "problemset/problem/" + contestId + "/" + index;
+            } else {
+              url += "gym/" + contestId;
+            }
+            html += "<tr>";
+            html += "<td>" + 
+                    "<a href='" + url + "' target='_blank'>" +
+                     contestId +
+                     index + 
+                    "</a>" +
+                     "</td>";
+            html += "<td>" + response[j].solvedCount + "</td>";
+            html += "</tr>";
+          }
+          document.getElementById('problems').children[0].innerHTML += html;
+          document.getElementById('problems').style.display = "table";
+        }
+      }
+        
+      var url = '/codeforces/problems/recommended/' + username;
+      xhttp.open('GET', url, true);
+      xhttp.send();
+    }
+      
+    document.getElementById('submitHandle').onclick = function() {
+      var handle = document.getElementById('handle').value;
+      window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, handle);
+      getQ(handle);
+    };
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+      var handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
+      if (handle) {
+        document.getElementById('handle').value = handle;
+        getQ(handle);
+      }
+    });
+ 

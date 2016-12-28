@@ -18,7 +18,7 @@ block content
             td Solves
 
   script.
-    const END_POINT = 'https://uhunt.felix-halim.net/api';
+    const UVA_LOCAL_USERNAME = "fa_preferred_uva_username";
     var getQ = function(username) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -56,7 +56,15 @@ block content
     }
     document.getElementById('submitHandle').onclick = function() {
       var username = document.getElementById('handle').value;
+      window.localStorage.setItem(UVA_LOCAL_USERNAME, username);
       getQ(username);
     }
+    document.addEventListener("DOMContentLoaded", function(event) {
+      var username = window.localStorage.getItem(UVA_LOCAL_USERNAME);
+      if (username) {
+        document.getElementById('handle').value = username;
+        getQ(username);
+      }
+    });
     
     

@@ -10,43 +10,65 @@ block content
               span.input-group-btn
                 button.btn.btn-primary#submitHandle Go!
       .row
-        .col-md-6.col-md-offset-3#rtableSection
+        .col-md-4
+          h4 Easy
           table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px;")
             tr
               td Problem Id
               td Solved
-        
+         .col-md-4
+           h4 Medium
+           table.table.table-bordered.table-condensed#problemsM(style="display: none; margin-top: 16px;")
+            tr
+              td Problem Id
+              td Solved
+          .col-md-4
+            h4 Brutal
+            table.table.table-bordered.table-condensed#problemsH(style="display: none; margin-top: 16px;")
+              tr
+                td Problem Id
+                td Solved
+     
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
+    var convertToHtml = function(problems, start, num) {
+      var html = '';
+      for (var j = start; j < start + num && j < problems.length; j++) {
+        var contestId = problems[j].contestId;
+        var index = problems[j].index;
+        url = "http://codeforces.com/";
+        if (contestId < 100000) {
+          url += "problemset/problem/" + contestId + "/" + index;
+        } else {
+          url += "gym/" + contestId;
+        }
+        html += "<tr>";
+        html += "<td>" + 
+                "<a href='" + url + "' target='_blank'>" +
+                 contestId +
+                 index + 
+                "</a>" +
+                 "</td>";
+        html += "<td>" + problems[j].solvedCount + "</td>";
+        html += "</tr>";
+      }
+      return html;
+    };
     var getQ = function(username) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          var response = JSON.parse(this.responseText);
-          var html = '';
-          var firstCouple = 20;
-          console.log(response);
-          for (var j = 0; j < firstCouple; j++) {
-            var contestId = response[j].contestId;
-            var index = response[j].index;
-            url = "http://codeforces.com/";
-            if (contestId < 100000) {
-              url += "problemset/problem/" + contestId + "/" + index;
-            } else {
-              url += "gym/" + contestId;
-            }
-            html += "<tr>";
-            html += "<td>" + 
-                    "<a href='" + url + "' target='_blank'>" +
-                     contestId +
-                     index + 
-                    "</a>" +
-                     "</td>";
-            html += "<td>" + response[j].solvedCount + "</td>";
-            html += "</tr>";
-          }
+          var problems = JSON.parse(this.responseText);
+          const NUM_PER_PAGE = 10;
+          var html = convertToHtml(problems, 0, NUM_PER_PAGE);
+          var htmlM = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
+          var htmlH = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
           document.getElementById('problems').children[0].innerHTML += html;
+          document.getElementById('problemsM').children[0].innerHTML += htmlM;
+          document.getElementById('problemsH').children[0].innerHTML += htmlH;
           document.getElementById('problems').style.display = "table";
+          document.getElementById('problemsM').style.display = "table";
+          document.getElementById('problemsH').style.display = "table";
         }
       }
         

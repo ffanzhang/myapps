@@ -10,8 +10,23 @@ block content
               span.input-group-btn
                 button.btn.btn-primary#submitHandle Go!
       .row
-        .col-md-6.col-md-offset-3
+        .col-md-4
+          h4 Easy
           table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px; border-radius: 4px;")
+            td ID
+            td Number
+            td Title
+            td Solves
+        .col-md-4
+          h4 Medium
+          table.table.table-bordered.table-condensed#problemsM(style="display: none; margin-top: 16px; border-radius: 4px;")
+            td ID
+            td Number
+            td Title
+            td Solves
+        .col-md-4
+          h4 Brutal
+          table.table.table-bordered.table-condensed#problemsH(style="display: none; margin-top: 16px; border-radius: 4px;")
             td ID
             td Number
             td Title
@@ -19,34 +34,45 @@ block content
 
   script.
     const UVA_LOCAL_USERNAME = "fa_preferred_uva_username";
+    var convertToHtml = function(problems, start, number) {
+      var html = '';
+      for (var j = start; j < start + number && j < problems.length; j++) {
+        html += "<tr>";
+        for (var i = 0; i < 4; i++) {
+          var content = String(problems[j][i]);
+          if (i == 1) {
+            var url = '//uva.onlinejudge.org/external/';
+            if (content.length < 4) {
+              url += content[0] + '/' + content + '.pdf';
+            } else {
+              url += content.substring(0, 3) + '/' + content + '.pdf';
+            }
+            html += "<td><a href='" + url + "' target='_blank'>" + content + "</a></td>";
+          } else {
+            html += "<td>" + problems[j][i] + "</td>";
+          }
+        }
+        html += "</tr>";
+      }
+      return html;
+    };
+
     var getQ = function(username) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
+          const NUM_PER_PAGE = 10;
           var response = JSON.parse(this.responseText);
           var problems = response.problems;
-          var html = '';
-          var firstCouple = 20;
-          for (var j = 0; j < firstCouple; j++) {
-            html += "<tr>";
-            for (var i = 0; i < 4; i++) {
-              var content = String(problems[j][i]);
-              if (i == 1) {
-                var url = '//uva.onlinejudge.org/external/';
-                if (content.length < 4) {
-                  url += content[0] + '/' + content + '.pdf';
-                } else {
-                  url += content.substring(0, 3) + '/' + content + '.pdf';
-                }
-                html += "<td><a href='" + url + "' target='_blank'>" + content + "</a></td>";
-              } else {
-                html += "<td>" + problems[j][i] + "</td>";
-              }
-            }
-            html += "</tr>";
-          }
-          document.getElementById('problems').children[0].innerHTML += html;
+          var htmlEasy = convertToHtml(problems, 0, NUM_PER_PAGE);
+          var htmlMedium = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
+          var htmlHard = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
+          document.getElementById('problems').children[0].innerHTML += htmlEasy;
+          document.getElementById('problemsM').children[0].innerHTML += htmlMedium;
+          document.getElementById('problemsH').children[0].innerHTML += htmlHard;
           document.getElementById('problems').style.display = "table";
+          document.getElementById('problemsM').style.display = "table";
+          document.getElementById('problemsH').style.display = "table";
         }
       }
         

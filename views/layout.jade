@@ -24,6 +24,21 @@ html
       ul li {
         cursor: pointer;
       }
+      .preloader {
+        border: 3px solid #ffffff;
+        height: 16px;
+        width: 16px;
+        border-top: 3px solid rgba(0, 0, 0, 0);
+        border-radius: 50%;
+        animation: spin 2s linear infinite;
+      }
+      button {
+        height: 34px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
     script(src='lib/codemirror.js')
     script(src='keymap/vim.js')
     script(src='keymap/sublime.js')

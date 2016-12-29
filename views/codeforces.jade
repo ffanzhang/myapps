@@ -8,31 +8,25 @@ block content
             .input-group
               input.form-control#handle(type='text', placeholder='handle', name='handle')
               span.input-group-btn
-                button.btn.btn-primary#submitHandle Go!
+                button.btn.btn-primary#submitHandle 
       .row
         .col-md-4
           h4 Easy
           table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px;")
-            tr
-              td Problem Id
-              td Solved
+            tbody
          .col-md-4
            h4 Medium
            table.table.table-bordered.table-condensed#problemsM(style="display: none; margin-top: 16px;")
-            tr
-              td Problem Id
-              td Solved
+             tbody
           .col-md-4
             h4 Brutal
             table.table.table-bordered.table-condensed#problemsH(style="display: none; margin-top: 16px;")
-              tr
-                td Problem Id
-                td Solved
+              tbody
      
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
     var convertToHtml = function(problems, start, num) {
-      var html = '';
+      var html = '<tr><td>Problem Id</td><td>Solved</td></tr>';
       for (var j = start; j < start + num && j < problems.length; j++) {
         var contestId = problems[j].contestId;
         var index = problems[j].index;
@@ -54,7 +48,7 @@ block content
       }
       return html;
     };
-    var getQ = function(username) {
+    var getQ = function(username, callback) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -69,6 +63,7 @@ block content
           document.getElementById('problems').style.display = "table";
           document.getElementById('problemsM').style.display = "table";
           document.getElementById('problemsH').style.display = "table";
+          callback();
         }
       }
         
@@ -78,16 +73,32 @@ block content
     }
       
     document.getElementById('submitHandle').onclick = function() {
+      this.setAttribute("disabled", "disabled");
+      this.innerHTML = "<div class='preloader'></div>";
+      var that = this;
       var handle = document.getElementById('handle').value;
+      var rows = document.querySelectorAll('tr');
+      for (var i = 0; i < rows.length; i++) {
+        rows[i].parentNode.removeChild(rows[i]);
+      }
       window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, handle);
-      getQ(handle);
+      getQ(handle, function() {
+        that.removeAttribute("disabled");
+        that.innerHTML = "Go!";
+      });
     };
 
     document.addEventListener("DOMContentLoaded", function(event) {
       var handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
       if (handle) {
+        var btn = document.getElementById('submitHandle')
+        btn.setAttribute("disabled", "disabled");
+        btn.innerHTML = "<div class='preloader'></div>";
         document.getElementById('handle').value = handle;
-        getQ(handle);
+        getQ(handle, function() {
+          btn.removeAttribute("disabled");
+          btn.innerHTML = "Go!";
+        });
       }
     });
  

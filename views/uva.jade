@@ -13,17 +13,11 @@ block content
         .col-md-4
           h4 Easy
           table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px; border-radius: 4px;")
-            td ID
-            td Number
-            td Title
-            td Solves
+            tbody
         .col-md-4
           h4 Medium
           table.table.table-bordered.table-condensed#problemsM(style="display: none; margin-top: 16px; border-radius: 4px;")
-            td ID
-            td Number
-            td Title
-            td Solves
+            tbody
         .col-md-4
           h4 Brutal
           table.table.table-bordered.table-condensed#problemsH(style="display: none; margin-top: 16px; border-radius: 4px;")
@@ -35,7 +29,7 @@ block content
   script.
     const UVA_LOCAL_USERNAME = "fa_preferred_uva_username";
     var convertToHtml = function(problems, start, number) {
-      var html = '';
+      var html = '<tr><td>ID</td><td>Number</td><td>Title</td><td>Solves</td></tr>';
       for (var j = start; j < start + number && j < problems.length; j++) {
         html += "<tr>";
         for (var i = 0; i < 4; i++) {
@@ -57,7 +51,7 @@ block content
       return html;
     };
 
-    var getQ = function(username) {
+    var getQ = function(username, callback) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -73,6 +67,7 @@ block content
           document.getElementById('problems').style.display = "table";
           document.getElementById('problemsM').style.display = "table";
           document.getElementById('problemsH').style.display = "table";
+          callback();
         }
       }
         
@@ -81,15 +76,32 @@ block content
       xhttp.send();
     }
     document.getElementById('submitHandle').onclick = function() {
+      this.setAttribute("disabled", "disabled");
+      this.innerHTML = "<div class='preloader'></div>";
       var username = document.getElementById('handle').value;
       window.localStorage.setItem(UVA_LOCAL_USERNAME, username);
-      getQ(username);
+      var rows = document.querySelectorAll('tr');
+      for (var i = 0; i < rows.length; i++) {
+        rows[i].parentNode.removeChild(rows[i]);
+      }
+      var that = this;
+      getQ(username, function() {
+        that.removeAttribute("disabled");
+        that.innerHTML = "Go!";
+      });
     }
+
     document.addEventListener("DOMContentLoaded", function(event) {
       var username = window.localStorage.getItem(UVA_LOCAL_USERNAME);
       if (username) {
+        var btn = document.getElementById('submitHandle');
+        btn.setAttribute("disabled", "disabled");
+        btn.innerHTML = "<div class='preloader'></div>";
         document.getElementById('handle').value = username;
-        getQ(username);
+        getQ(username, function() {
+          btn.removeAttribute("disabled");
+          btn.innerHTML = "Go!";
+        });
       }
     });
     

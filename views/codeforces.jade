@@ -9,7 +9,7 @@ block content
               input.form-control#handle(type='text', placeholder='handle', name='handle')
               span.input-group-btn
                 button.btn.btn-primary#submitHandle Go!
-      .row
+      .row#tables(style="display: none;")
         .col-md-3
           h4 Easy
           table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px;")
@@ -117,6 +117,7 @@ block content
           document.getElementById('problemsM').style.display = "table";
           document.getElementById('problemsH').style.display = "table";
           document.getElementById('problemsA').style.display = "table";
+          document.getElementById('tables').style.display = "block";
           callback();
         }
       }
@@ -173,6 +174,7 @@ block content
       document.getElementById('problemsA').children[0].innerHTML += htmlA;
     }
     document.getElementById('submitHandle').onclick = function() {
+      document.getElementById('tables').style.display = "none";
       this.setAttribute("disabled", "disabled");
       this.innerHTML = "<div class='preloader'></div>";
       removeAllTableRows();
@@ -182,6 +184,7 @@ block content
       getQ(handle, function() {
         that.removeAttribute("disabled");
         that.innerHTML = "Go!";
+        document.getElementById('tables').style.display = "block";
       });
     };
 

@@ -8,23 +8,32 @@ block content
             .input-group
               input.form-control#handle(type='text', placeholder='handle', name='handle')
               span.input-group-btn
-                button.btn.btn-primary#submitHandle 
+                button.btn.btn-primary#submitHandle Go!
       .row
-        .col-md-4
+        .col-md-3
           h4 Easy
           table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px;")
             tbody
-         .col-md-4
+         .col-md-3
            h4 Medium
            table.table.table-bordered.table-condensed#problemsM(style="display: none; margin-top: 16px;")
              tbody
-          .col-md-4
+          .col-md-3
             h4 Brutal
             table.table.table-bordered.table-condensed#problemsH(style="display: none; margin-top: 16px;")
               tbody
-     
+          .col-md-3
+            h4 Adaptive
+            table.table.table-bordered.table-condensed#problemsA(style="display: none; margin-top: 16px;")
+              tbody
+            .btn-group
+              button.btn.btn-success#tooEasy Too Easy
+              button.btn#reset Reset
+              button.btn.btn-danger#tooHard Too Hard
+  
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
+    const NUM_PER_PAGE = 10;
     var convertToHtml = function(problems, start, num) {
       var html = '<tr><td>Problem Id</td><td>Solved</td></tr>';
       for (var j = start; j < start + num && j < problems.length; j++) {
@@ -48,21 +57,66 @@ block content
       }
       return html;
     };
+
+    var getLowerBound = function() {
+      var lo = window.localStorage.getItem("codeforces_lo");
+      if (lo) {
+        return parseInt(lo);
+      } else {
+        return 0;
+      }
+    }
+
+    var getHigherBound = function() {
+      var hi = window.localStorage.getItem("codeforces_hi");
+      if (hi) {
+        return parseInt(hi);
+      } else {
+        return Infinity;
+      }
+    }
+
+    var setLowerBound = function(lo) {
+      window.localStorage.setItem("codeforces_lo", parseInt(lo));
+    }
+
+    var setHigherBound = function(hi) {
+      window.localStorage.setItem("codeforces_hi", parseInt(hi));
+    }
+
+    var getProblems = function() {
+      var problems = window.localStorage.getItem("codeforces_problems");
+      if (problems) {
+        return JSON.parse(problems);
+      } else {
+        return {};
+      }
+    }
+
     var getQ = function(username, callback) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
+          window.localStorage.setItem("codeforces_problems", this.responseText);
           var problems = JSON.parse(this.responseText);
-          const NUM_PER_PAGE = 10;
           var html = convertToHtml(problems, 0, NUM_PER_PAGE);
           var htmlM = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
           var htmlH = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
+          var lo = getLowerBound();
+          var hi = Math.min(getHigherBound(), problems.length);
+          setLowerBound(lo);
+          setHigherBound(hi);
+          var mid = parseInt((lo + hi) / 2);
+          var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
+
           document.getElementById('problems').children[0].innerHTML += html;
           document.getElementById('problemsM').children[0].innerHTML += htmlM;
           document.getElementById('problemsH').children[0].innerHTML += htmlH;
+          document.getElementById('problemsA').children[0].innerHTML += htmlA;
           document.getElementById('problems').style.display = "table";
           document.getElementById('problemsM').style.display = "table";
           document.getElementById('problemsH').style.display = "table";
+          document.getElementById('problemsA').style.display = "table";
           callback();
         }
       }
@@ -71,16 +125,59 @@ block content
       xhttp.open('GET', url, true);
       xhttp.send();
     }
-      
-    document.getElementById('submitHandle').onclick = function() {
-      this.setAttribute("disabled", "disabled");
-      this.innerHTML = "<div class='preloader'></div>";
-      var that = this;
-      var handle = document.getElementById('handle').value;
+    var removeAllTableRows = function() {
       var rows = document.querySelectorAll('tr');
       for (var i = 0; i < rows.length; i++) {
         rows[i].parentNode.removeChild(rows[i]);
       }
+    }
+    var removeTableRowsById = function(id) {
+      var rows = document.querySelectorAll('table' + '#' + id + ' tr');
+      for (var i = 0; i < rows.length; i++) {
+        rows[i].parentNode.removeChild(rows[i]);
+      }
+    }
+    document.getElementById("tooHard").onclick = function() {
+      removeTableRowsById("problemsA");
+      var problems = getProblems();
+      var lo = getLowerBound();
+      var hi = Math.min(getHigherBound(), problems.length);
+      var mid = parseInt((lo + hi) / 2);
+      hi = mid;
+      setHigherBound(hi);
+      mid = parseInt((lo + hi) / 2);
+      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
+      document.getElementById('problemsA').children[0].innerHTML += htmlA;
+    }
+    document.getElementById("tooEasy").onclick = function() {
+      removeTableRowsById("problemsA");
+      var problems = getProblems();
+      var lo = getLowerBound();
+      var hi = Math.min(getHigherBound(), problems.length);
+      var mid = parseInt((lo + hi) / 2);
+      lo = mid + 1;
+      setLowerBound(lo);
+      mid = parseInt((lo + hi) / 2);
+      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
+      document.getElementById('problemsA').children[0].innerHTML += htmlA;
+    } 
+    document.getElementById("reset").onclick = function() {
+      removeTableRowsById("problemsA");
+      var problems = getProblems();
+      setLowerBound(0);
+      setHigherBound(problems.length);
+      var lo = getLowerBound();
+      var hi = Math.min(getHigherBound(), problems.length);
+      mid = parseInt((lo + hi) / 2);
+      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
+      document.getElementById('problemsA').children[0].innerHTML += htmlA;
+    }
+    document.getElementById('submitHandle').onclick = function() {
+      this.setAttribute("disabled", "disabled");
+      this.innerHTML = "<div class='preloader'></div>";
+      removeAllTableRows();
+      var that = this;
+      var handle = document.getElementById('handle').value;
       window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, handle);
       getQ(handle, function() {
         that.removeAttribute("disabled");

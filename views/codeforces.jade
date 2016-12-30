@@ -11,25 +11,24 @@ block content
                 button.btn.btn-primary#submitHandle Go!
       .row#tables(style="display: none; margin-top: 16px;")
         .col-md-3
-          h4 Easy
-          table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px;")
+          p Easy
+          table.table.table-bordered.table-condensed#problems(style="display: none;")
             tbody
          .col-md-3
-           h4 Medium
-           table.table.table-bordered.table-condensed#problemsM(style="display: none; margin-top: 16px;")
+           p Medium
+           table.table.table-bordered.table-condensed#problemsM(style="display: none;")
              tbody
           .col-md-3
-            h4 Brutal
-            table.table.table-bordered.table-condensed#problemsH(style="display: none; margin-top: 16px;")
+            p Brutal
+            table.table.table-bordered.table-condensed#problemsH(style="display: none;")
               tbody
           .col-md-3
-            h4 Adaptive
-            table.table.table-bordered.table-condensed#problemsA(style="display: none; margin-top: 16px;")
+            p(style="display: inline-block; width: 50%;") Adaptive
+            button.btn.btn-default(style="float: right;")#reset Reset
+            table.table.table-bordered.table-condensed#problemsA(style="display: none;")
               tbody
-            .btn-group
-              button.btn.btn-success#tooEasy Too Easy
-              button.btn.btn-default#reset Reset
-              button.btn.btn-danger#tooHard Too Hard
+            button.btn.btn-success#tooEasy(style="float: left;") Too Easy
+            button.btn.btn-danger#tooHard(style="float: right;") Too Hard
   
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";

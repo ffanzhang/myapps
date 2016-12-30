@@ -9,7 +9,7 @@ block content
               input.form-control#handle(type='text', placeholder='handle', name='handle')
               span.input-group-btn
                 button.btn.btn-primary#submitHandle Go!
-      .row#tables(style="display: none;")
+      .row#tables(style="display: none; margin-top: 16px;")
         .col-md-3
           h4 Easy
           table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px;")
@@ -28,7 +28,7 @@ block content
               tbody
             .btn-group
               button.btn.btn-success#tooEasy Too Easy
-              button.btn#reset Reset
+              button.btn.btn-default#reset Reset
               button.btn.btn-danger#tooHard Too Hard
   
   script.
@@ -182,9 +182,9 @@ block content
       var handle = document.getElementById('handle').value;
       window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, handle);
       getQ(handle, function() {
+        document.getElementById('tables').style.display = "block";
         that.removeAttribute("disabled");
         that.innerHTML = "Go!";
-        document.getElementById('tables').style.display = "block";
       });
     };
 
@@ -196,6 +196,7 @@ block content
         btn.innerHTML = "<div class='preloader'></div>";
         document.getElementById('handle').value = handle;
         getQ(handle, function() {
+          document.getElementById('tables').style.display = "block";
           btn.removeAttribute("disabled");
           btn.innerHTML = "Go!";
         });

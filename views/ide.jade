@@ -8,6 +8,8 @@ block content
           aria-expanded='false' style="width: 100px;") Language 
           span.caret
         ul.dropdown-menu#lang(aria-labelledby='langSelect')
+          li
+            a(value='python') Python 2
           li 
             a(value='python3') Python 3
           li
@@ -73,7 +75,7 @@ block content
   script.
     $(function() {
       var editor = CodeMirror.fromTextArea(document.getElementById("code"));
-      var compiler = "python3"
+      var compiler = "python2"
       editor.setOption("lineNumbers", true);
       editor.setOption("mode", "python");
 
@@ -119,7 +121,7 @@ block content
         selection = $(this).text();
         $('#langSelect').text(selection + ' ');
         var value = $(this).attr('value');
-        if (value === 'python3') {
+        if (value === 'python3' || value === 'python') {
           editor.setOption("mode", "python");
         } else if (value === 'gcc') {
           editor.setOption("mode", "text/x-csrc");
@@ -146,7 +148,7 @@ block content
       if (pLanguage) {
         var lMap = {'python3': 'Python 3', 'g++': 'C++', 'gcc': 'C'};
         compiler = pLanguage;
-        if (pLanguage === 'python3') {
+        if (pLanguage === 'python3' || pLanguage === 'python') {
           editor.setOption("mode", "python");
         } else if (pLanguage === 'gcc') {
           editor.setOption("mode", "text/x-csrc");

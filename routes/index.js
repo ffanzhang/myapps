@@ -66,6 +66,22 @@ router.post('/ide', function(req, res, next) {
       res.send(output);
     });
 
+  } else if (compiler == 'python') {
+    var python = exec('python ' +  filename + ' < ' + inputfilename);
+    var output = ""
+
+    python.stdout.on('data', function(out) {
+      output += String(out);
+    });
+
+    python.stderr.on('data', function(out) {
+      output += String(out);
+    });
+
+    python.on('close', function(out) {
+      removeAll();
+      res.send(output);
+    });
   } else if (compiler === 'gcc') {
     var gcc = spawn('gcc', [filename, '-o', executablename]);
     var output = "";

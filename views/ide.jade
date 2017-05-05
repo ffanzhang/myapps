@@ -146,7 +146,7 @@ block content
       var pEditor = window.localStorage.getItem("fa_preferred_editor");
       var pTheme = window.localStorage.getItem("fa_preferred_theme");
       if (pLanguage) {
-        var lMap = {'python3': 'Python 3', 'g++': 'C++', 'gcc': 'C'};
+        var lMap = {'python': 'Python 2', 'python3': 'Python 3', 'g++': 'C++', 'gcc': 'C'};
         compiler = pLanguage;
         if (pLanguage === 'python3' || pLanguage === 'python') {
           editor.setOption("mode", "python");

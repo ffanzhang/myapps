@@ -1,7 +1,7 @@
 var Promise = require("bluebird");
 var request = Promise.promisify(require('request'));
 Promise.promisifyAll(request);
-const END_POINT = 'https://uhunt.felix-halim.net/api';
+const END_POINT = 'http://uhunt.felix-halim.net/api';
 
 class UVA {
 

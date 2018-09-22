@@ -35,9 +35,12 @@ router.get('/problems', function(req, res, next) {
 
 router.get('/problems/recommended/:username', function(req, res, next) {
     Promise.all([UVA.getSubmissionsByUsername(req.params.username), UVA.getProblems()])
-    .then(function([submissions, problems]) {
-      var submissions = JSON.parse(submissions.body).subs;
-      var problems = JSON.parse(problems.body);
+    .then(function(r) {
+
+      // var submissions = JSON.parse(submissions.body).subs;
+      //var problems = JSON.parse(problems.body);
+      var submissions = JSON.parse(r[0].body).subs;
+      var problems = JSON.parse(r[1].body);
       const PID = 1;
       const VID = 2;
       const AC = '90';

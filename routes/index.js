@@ -1,8 +1,10 @@
 var express = require('express');
+var path = require('path');
 var router = express.Router();
 var request = require('request');
 var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
+var execSync = require('child_process').execSync;
 var fs = require('fs');
 var crypto = require('crypto');
 var Promise = require('bluebird');
@@ -16,18 +18,73 @@ router.get('/codeforcesqp', function(req, res, next) {
   res.render('codeforcesqp');
 });
 
-
 router.get('/ide', function(req, res, next) {
   res.render('ide');
 });
+
+var execPython = function(version, filename, inputfilename, executablename, foldername, res) {
+  var cmd = 'python3';
+  if (version == 2) {
+    cmd = 'python';
+  }
+  var cmdstring = cmd + ' ' +  filename + ' < ' + inputfilename;
+  var python = exec(cmdstring);
+  var output = '';
+  python.stdout.on('data', function(out) {
+    output += String(out);
+  });
+  python.stderr.on('data', function(out) {
+    output += String(out);
+  });
+  python.on('close', function(out) {
+    exec('rm -rf ' + foldername);
+    res.send(output);
+  });
+}
+
+var execCFamily = function(version, filename, inputfilename, executablename, foldername, res) {
+  var cmd = 'g++';
+  if (version == 'gcc') {
+    cmd = 'gcc';
+  }
+  var clike = spawn(cmd, [filename, '-o', executablename]);
+  var output = '';
+  clike.stdout.on('data', function(out) {
+    output += String(out);
+  });
+  clike.stderr.on('data', function(out) {
+    output += String(out);
+  });
+  clike.on('close', function(data) {
+    if (data === 0) {
+      var run = exec('./' + executablename + ' < ' + inputfilename);
+      run.stdout.on('data', function(out) {
+        output += String(out);
+      });
+      run.stderr.on('data', function(out) {
+        output += String(out);
+      });
+      run.on('close', function(out) {
+        exec('rm -rf ' + foldername);
+        res.send(output);
+      });
+    } else {
+      res.send(output);
+    }
+  });
+}
 
 router.post('/ide', function(req, res, next) {
   var source = req.body.code;
   var input = req.body.input;
   var compiler = req.body.compiler;
+  var foldername = crypto.randomBytes(16).toString('hex');
   var filename = crypto.randomBytes(32).toString('hex');
   var inputfilename = crypto.randomBytes(32).toString('hex') + '.txt';
   var executablename = crypto.randomBytes(32).toString('hex');
+  filename = path.join(foldername, filename);
+  inputfilename = path.join(foldername, inputfilename);
+  executablename = path.join(foldername, executablename);
 
   if (compiler == 'gcc') {
     filename += '.c';
@@ -37,116 +94,23 @@ router.post('/ide', function(req, res, next) {
     filename += '.py';
   }
 
-  var touch = exec('touch ' + filename);
-  var touch = exec('touch ' + inputfilename);
+  execSync('mkdir ' + foldername);
+  execSync('touch ' + filename);
+  execSync('touch ' + inputfilename);
 
   fs.writeFileSync(filename, source);
   fs.writeFileSync(inputfilename, input);
 
-  var removeAll = function() {
-    var rm = exec('rm ' + filename);
-    var rm2 = exec('rm ' + inputfilename);
-    var rm3 = exec('rm ' + executablename);
-  };
-
   if (compiler === 'python3') {
-    var python3 = exec('python3 ' +  filename + ' < ' + inputfilename);
-    var output = ""
-
-    python3.stdout.on('data', function(out) {
-      output += String(out);
-    });
-
-    python3.stderr.on('data', function(out) {
-      output += String(out);
-    });
-
-    python3.on('close', function(out) {
-      removeAll();
-      res.send(output);
-    });
-
+    execPython(3, filename, inputfilename, executablename, foldername, res);
   } else if (compiler == 'python') {
-    var python = exec('python ' +  filename + ' < ' + inputfilename);
-    var output = ""
-
-    python.stdout.on('data', function(out) {
-      output += String(out);
-    });
-
-    python.stderr.on('data', function(out) {
-      output += String(out);
-    });
-
-    python.on('close', function(out) {
-      removeAll();
-      res.send(output);
-    });
+    execPython(2, filename, inputfilename, executablename, foldername, res);
   } else if (compiler === 'gcc') {
-    var gcc = spawn('gcc', [filename, '-o', executablename]);
-    var output = "";
-    gcc.stdout.on('data', function(data) {
-      output += String(data);
-    });
-
-    gcc.stderr.on('data', function(data) {
-      output += String(data);
-    });
-
-    gcc.on('close', function(data) {
-      if (data === 0) {
-        var run = exec('./' + executablename + ' < ' + inputfilename);
-        run.stdout.on('data', function(out) {
-          output += String(out);
-        });
-
-        run.stderr.on('data', function(out) {
-          output += String(out);
-        });
-
-        run.on('close', function(out) {
-          removeAll();
-          res.send(output);
-        });
-      } else {
-        removeAll();
-        res.send(output);
-      }
-    });
+    execCFamily('gcc', filename, inputfilename, executablename, foldername, res);
   } else if (compiler === 'g++') {
-    var gpp = spawn('g++', [filename, '-o', executablename]);
-    var output = "";
-    gpp.stdout.on('data', function(data) {
-      output += String(data);
-    });
-
-    gpp.stderr.on('data', function(data) {
-      output += String(data);
-    });
-
-    gpp.on('close', function(data) {
-      if (data === 0) {
-        var run = exec('./' + executablename + ' < ' + inputfilename);
-        run.stdout.on('data', function(out) {
-          output += String(out);
-        });
-
-        run.stderr.on('data', function(out) {
-          output += String(out);
-        });
-
-        run.on('close', function(out) {
-          removeAll();
-          res.send(output);
-        });
-      } else {
-        removeAll();
-        res.send(output);
-      }
-    });
+    execCFamily('g++', filename, inputfilename, executablename, foldername, res);
   } else {
   }
-
 });
 
 module.exports = router;

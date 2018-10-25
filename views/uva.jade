@@ -49,25 +49,30 @@ block content
       return html;
     };
 
+    var renderProblems = function(problems) {
+      var htmlEasy = convertToHtml(problems, 0, NUM_PER_PAGE);
+      var htmlMedium = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
+      var htmlHard = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
+      document.getElementById('problems').children[0].innerHTML += htmlEasy;
+      document.getElementById('problemsM').children[0].innerHTML += htmlMedium;
+      document.getElementById('problemsH').children[0].innerHTML += htmlHard;
+      document.getElementById('problems').style.display = "table";
+      document.getElementById('problemsM').style.display = "table";
+      document.getElementById('problemsH').style.display = "table";
+      document.getElementById('tables').style.display = "block";
+    };
+
     var getQ = function(username, callback) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           var response = JSON.parse(this.responseText);
+          window.localStorage.setItem("uva_problems", this.responseText);
           var problems = response.problems;
-          var htmlEasy = convertToHtml(problems, 0, NUM_PER_PAGE);
-          var htmlMedium = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
-          var htmlHard = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
-          document.getElementById('problems').children[0].innerHTML += htmlEasy;
-          document.getElementById('problemsM').children[0].innerHTML += htmlMedium;
-          document.getElementById('problemsH').children[0].innerHTML += htmlHard;
-          document.getElementById('problems').style.display = "table";
-          document.getElementById('problemsM').style.display = "table";
-          document.getElementById('problemsH').style.display = "table";
+          renderProblems(problems);
           callback();
         }
       }
-        
       var url = '/uva/problems/recommended/' + username;
       xhttp.open('GET', url, true);
       xhttp.send();
@@ -92,16 +97,25 @@ block content
 
     document.addEventListener("DOMContentLoaded", function(event) {
       var username = window.localStorage.getItem(UVA_LOCAL_USERNAME);
+      var problems = window.localStorage.getItem("uva_problems");
       if (username) {
-        var btn = document.getElementById('submitHandle');
-        btn.setAttribute("disabled", "disabled");
-        btn.innerHTML = "<div class='preloader'></div>";
         document.getElementById('handle').value = username;
-        getQ(username, function() {
-          document.getElementById('tables').style.display = "block";
-          btn.removeAttribute("disabled");
-          btn.innerHTML = "Go!";
-        });
+      }
+      if (username && problems) {
+          problems = JSON.parse(problems).problems;
+          console.log(problems);
+          renderProblems(problems);
+      } else {
+        if (username) {
+          var btn = document.getElementById('submitHandle');
+          btn.setAttribute("disabled", "disabled");
+          btn.innerHTML = "<div class='preloader'></div>";
+          getQ(username, function() {
+            document.getElementById('tables').style.display = "block";
+            btn.removeAttribute("disabled");
+            btn.innerHTML = "Go!";
+          });
+        }
       }
     });
     

@@ -32,6 +32,7 @@ block content
   
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
+    const CODEFORCES_DATA = "fa_data";
     const NUM_PER_PAGE = 10;
     var convertToHtml = function(problems, start, num) {
       var html = '<tr><td>Problem Id</td><td>Solved</td></tr>';
@@ -92,39 +93,43 @@ block content
       }
     }
 
+    var renderProblems = function(problems) {
+      var html = convertToHtml(problems, 0, NUM_PER_PAGE);
+      var htmlM = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
+      var htmlH = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
+      var lo = getLowerBound();
+      var hi = Math.min(getHigherBound(), problems.length);
+      setLowerBound(lo);
+      setHigherBound(hi);
+      var mid = parseInt((lo + hi) / 2);
+      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
+
+      document.getElementById('problems').children[0].innerHTML += html;
+      document.getElementById('problemsM').children[0].innerHTML += htmlM;
+      document.getElementById('problemsH').children[0].innerHTML += htmlH;
+      document.getElementById('problemsA').children[0].innerHTML += htmlA;
+      document.getElementById('problems').style.display = "table";
+      document.getElementById('problemsM').style.display = "table";
+      document.getElementById('problemsH').style.display = "table";
+      document.getElementById('problemsA').style.display = "table";
+      document.getElementById('tables').style.display = "block";
+    };
+
     var getQ = function(username, callback) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           window.localStorage.setItem("codeforces_problems", this.responseText);
           var problems = JSON.parse(this.responseText);
-          var html = convertToHtml(problems, 0, NUM_PER_PAGE);
-          var htmlM = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
-          var htmlH = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
-          var lo = getLowerBound();
-          var hi = Math.min(getHigherBound(), problems.length);
-          setLowerBound(lo);
-          setHigherBound(hi);
-          var mid = parseInt((lo + hi) / 2);
-          var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
-
-          document.getElementById('problems').children[0].innerHTML += html;
-          document.getElementById('problemsM').children[0].innerHTML += htmlM;
-          document.getElementById('problemsH').children[0].innerHTML += htmlH;
-          document.getElementById('problemsA').children[0].innerHTML += htmlA;
-          document.getElementById('problems').style.display = "table";
-          document.getElementById('problemsM').style.display = "table";
-          document.getElementById('problemsH').style.display = "table";
-          document.getElementById('problemsA').style.display = "table";
-          document.getElementById('tables').style.display = "block";
+          renderProblems(problems);
           callback();
         }
       }
-        
       var url = '/codeforces/problems/recommended/' + username;
       xhttp.open('GET', url, true);
       xhttp.send();
     }
+
     var removeAllTableRows = function() {
       var rows = document.querySelectorAll('tr');
       for (var i = 0; i < rows.length; i++) {
@@ -189,16 +194,23 @@ block content
 
     document.addEventListener("DOMContentLoaded", function(event) {
       var handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
+      var problems = getProblems(); 
       if (handle) {
-        var btn = document.getElementById('submitHandle')
-        btn.setAttribute("disabled", "disabled");
-        btn.innerHTML = "<div class='preloader'></div>";
         document.getElementById('handle').value = handle;
-        getQ(handle, function() {
-          document.getElementById('tables').style.display = "block";
-          btn.removeAttribute("disabled");
-          btn.innerHTML = "Go!";
-        });
+      }
+      if (problems && handle) {
+          renderProblems(problems);
+      } else {
+          if (handle) {
+            var btn = document.getElementById('submitHandle')
+            btn.setAttribute("disabled", "disabled");
+            btn.innerHTML = "<div class='preloader'></div>";
+            getQ(handle, function() {
+              document.getElementById('tables').style.display = "block";
+              btn.removeAttribute("disabled");
+              btn.innerHTML = "Go!";
+            });
+          }
       }
     });
  

@@ -93,6 +93,16 @@ block content
             }
       });
 
+      var source = window.localStorage.getItem("source");
+      if (source) {
+          editor.setValue(source);
+      }
+
+      var saveCurrent = function() {
+        window.localStorage.setItem("source", editor.getValue());
+      }
+
+      window.setInterval(saveCurrent, 10000);
       editor.on("inputRead", function(cm, event) {
         var ch = cm.doc.getLine(event.to.line).substr(event.to.ch, 1);
 
@@ -192,5 +202,8 @@ block content
         editor.setOption("theme", pTheme);
         $('#themeSelect').text(pTheme + ' ');
         $("<span class='caret'></span>").appendTo("#themeSelect");
+      }
+      window.onbeforeunload = function (e) {
+        saveCurrent();
       }
     });

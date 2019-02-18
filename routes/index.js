@@ -12,7 +12,6 @@ var octicons = require('octicons');
 
 const process_options = {
     cwd : '/tmp/',
-    gid : 1000,
 }
 
 /* GET home page. */

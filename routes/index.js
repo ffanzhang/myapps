@@ -48,7 +48,12 @@ var execCFamily = function(version, filename, inputfilename, executablename, fol
   if (version == 'gcc') {
     cmd = 'gcc';
   }
-  var clike = spawn(cmd, [filename, '-o', executablename]);
+  var clike;
+  if (cmd == 'gcc') {
+    clike = spawn(cmd, [filename, '-o', executablename]);
+  } else {
+    clike = spawn(cmd, [filename, '--std=c++11', '-o', executablename]);
+  }
   var output = '';
   clike.stdout.on('data', function(out) {
     output += String(out);
@@ -79,7 +84,7 @@ router.post('/ide', function(req, res, next) {
   var source = req.body.code;
   var input = req.body.input;
   var compiler = req.body.compiler;
-  var foldername = crypto.randomBytes(16).toString('hex');
+  var foldername = path.join("tmp", crypto.randomBytes(16).toString('hex'));
   var filename = crypto.randomBytes(32).toString('hex');
   var inputfilename = crypto.randomBytes(32).toString('hex') + '.txt';
   var executablename = crypto.randomBytes(32).toString('hex');
@@ -94,7 +99,9 @@ router.post('/ide', function(req, res, next) {
   } else {
     filename += '.py';
   }
-
+  if (!fs.existsSync('tmp')) {
+    execSync('mkdir tmp');
+  }
   execSync('mkdir ' + foldername);
   execSync('touch ' + filename);
   execSync('touch ' + inputfilename);

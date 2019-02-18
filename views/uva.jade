@@ -4,28 +4,31 @@ block content
   .jumbotron(style="background:transparent")
     .container-fluid
       .row
-        .col-md-6.col-md-offset-3
+        .col-sm-3
+        .col-sm-6
             .input-group
               input.form-control#handle(type='text', placeholder='username', name='handle')
-              span.input-group-btn
+              span.input-group-append
                 button.btn.btn-primary#submitHandle Go!
-      .row#tables(style="display: none; margin-top: 16px;")
+        .col-sm-3
+      .row#tables(style="margin-top: 16px;")
         .col-md-4
           h4 Easy
-          table.table.table-bordered.table-condensed#problems(style="display: none; margin-top: 16px; border-radius: 4px;")
+          table.table.table-condensed#problems(style="display: none; margin-top: 16px; border-radius: 4px;")
             tbody
         .col-md-4
           h4 Medium
-          table.table.table-bordered.table-condensed#problemsM(style="display: none; margin-top: 16px; border-radius: 4px;")
+          table.table.table-condensed#problemsM(style="display: none; margin-top: 16px; border-radius: 4px;")
             tbody
         .col-md-4
           h4 Brutal
-          table.table.table-bordered.table-condensed#problemsH(style="display: none; margin-top: 16px; border-radius: 4px;")
+          table.table.table-condensed#problemsH(style="display: none; margin-top: 16px; border-radius: 4px;")
             tbody
 
   script.
     const UVA_LOCAL_USERNAME = "fa_preferred_uva_username";
     const NUM_PER_PAGE = 10;
+    document.getElementById('tables').style.display = "none";
     var convertToHtml = function(problems, start, number) {
       var html = '<tr><td>ID</td><td>Number</td><td>Title</td><td>Solves</td></tr>';
       for (var j = start; j < start + number && j < problems.length; j++) {
@@ -59,7 +62,7 @@ block content
       document.getElementById('problems').style.display = "table";
       document.getElementById('problemsM').style.display = "table";
       document.getElementById('problemsH').style.display = "table";
-      document.getElementById('tables').style.display = "block";
+      document.getElementById('tables').style.display = "";
     };
 
     var getQ = function(username, callback) {
@@ -89,7 +92,7 @@ block content
       }
       var that = this;
       getQ(username, function() {
-        document.getElementById('tables').style.display = "block";
+        document.getElementById('tables').style.display = "";
         that.removeAttribute("disabled");
         that.innerHTML = "Go!";
       });
@@ -111,7 +114,7 @@ block content
           btn.setAttribute("disabled", "disabled");
           btn.innerHTML = "<div class='preloader'></div>";
           getQ(username, function() {
-            document.getElementById('tables').style.display = "block";
+            document.getElementById('tables').style.display = "";
             btn.removeAttribute("disabled");
             btn.innerHTML = "Go!";
           });

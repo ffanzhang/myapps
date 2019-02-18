@@ -4,36 +4,40 @@ block content
   .jumbotron(style="background:transparent")
     .container-fluid
       .row
-        .col-md-6.col-md-offset-3
+          .col-sm-3
+          .col-sm-6
             .input-group
               input.form-control#handle(type='text', placeholder='handle', name='handle')
-              span.input-group-btn
+              span.input-group-append
                 button.btn.btn-primary#submitHandle Go!
-      .row#tables(style="display: none; margin-top: 16px;")
+          .col-sm-3
+      .row#tables
         .col-md-3
-          p Easy
-          table.table.table-bordered.table-condensed#problems(style="display: none;")
+          h4 Easy
+          table.table#problems(style="display: none;")
             tbody
-         .col-md-3
-           p Medium
-           table.table.table-bordered.table-condensed#problemsM(style="display: none;")
-             tbody
-          .col-md-3
-            p Brutal
-            table.table.table-bordered.table-condensed#problemsH(style="display: none;")
-              tbody
-          .col-md-3
-            p(style="display: inline-block; width: 50%;") Adaptive
-            button.btn.btn-default(style="float: right;")#reset Reset
-            table.table.table-bordered.table-condensed#problemsA(style="display: none;")
-              tbody
-            button.btn.btn-success#tooEasy(style="float: left;") Too Easy
-            button.btn.btn-danger#tooHard(style="float: right;") Too Hard
+        .col-md-3
+          h4 Medium
+          table.table#problemsM(style="display: none;")
+            tbody
+        .col-md-3
+          h4 Brutal
+          table.table#problemsH(style="display: none;")
+            tbody
+        .col-md-3
+          div
+            h4(style="display: inline-block; width: 50%;") Adaptive 
+            button.btn.btn-outline-primary(style="float: right;")#reset Reset
+          table.table#problemsA(style="display: none;")
+            tbody
+          button.btn.btn-success#tooEasy(style="float: left;") Too Easy
+          button.btn.btn-danger#tooHard(style="float: right;") Too Hard
   
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
     const CODEFORCES_DATA = "fa_data";
     const NUM_PER_PAGE = 10;
+    document.getElementById('tables').style.display = "none";
     var convertToHtml = function(problems, start, num) {
       var html = '<tr><td>Problem Id</td><td>Solved</td></tr>';
       for (var j = start; j < start + num && j < problems.length; j++) {
@@ -112,7 +116,7 @@ block content
       document.getElementById('problemsM').style.display = "table";
       document.getElementById('problemsH').style.display = "table";
       document.getElementById('problemsA').style.display = "table";
-      document.getElementById('tables').style.display = "block";
+      document.getElementById('tables').style.removeProperty("display");
     };
 
     var getQ = function(username, callback) {
@@ -186,7 +190,7 @@ block content
       var handle = document.getElementById('handle').value;
       window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, handle);
       getQ(handle, function() {
-        document.getElementById('tables').style.display = "block";
+        document.getElementById('tables').style.removeProperty("display");
         that.removeAttribute("disabled");
         that.innerHTML = "Go!";
       });
@@ -206,7 +210,7 @@ block content
             btn.setAttribute("disabled", "disabled");
             btn.innerHTML = "<div class='preloader'></div>";
             getQ(handle, function() {
-              document.getElementById('tables').style.display = "block";
+              document.getElementById('tables').style.removeProperty("display");
               btn.removeAttribute("disabled");
               btn.innerHTML = "Go!";
             });

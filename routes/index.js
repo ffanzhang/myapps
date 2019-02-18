@@ -8,6 +8,7 @@ var execSync = require('child_process').execSync;
 var fs = require('fs');
 var crypto = require('crypto');
 var Promise = require('bluebird');
+var octicons = require('octicons');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -19,7 +20,7 @@ router.get('/codeforcesqp', function(req, res, next) {
 });
 
 router.get('/ide', function(req, res, next) {
-  res.render('ide');
+  res.render('ide', { settings_icon : octicons.gear.toSVG() });
 });
 
 var execPython = function(version, filename, inputfilename, executablename, foldername, res) {
@@ -110,6 +111,7 @@ router.post('/ide', function(req, res, next) {
   } else if (compiler === 'g++') {
     execCFamily('g++', filename, inputfilename, executablename, foldername, res);
   } else {
+    execPython(2, filename, inputfilename, executablename, foldername, res);
   }
 });
 

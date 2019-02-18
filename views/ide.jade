@@ -1,83 +1,99 @@
 extends layout
 
 block content
-  .container
-    .btn-group(role='toolbar' aria-label='...')
-      .btn-group(role='group')
-        button.btn.btn-default.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-          aria-expanded='false') Language 
-          span.caret
-        ul.dropdown-menu#lang(aria-labelledby='langSelect')
-          li
-            a(value='python') Python 2
-          li 
-            a(value='python3') Python 3
-          li
-            a(value='gcc') C
-          li 
-            a(value='g++') C++
+  .container-fluid#codemirror-container(style="padding: 0px;")
+    textarea#code(name='code')
 
-      .btn-group(role='group')
-        button.btn.btn-default.dropdown-toggle#editorSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-          aria-expanded='false') Editor Mode 
-          span.caret
-        ul.dropdown-menu#editor(aria-labelledby='editorSelect')
-          li 
-            a(value='vim') vim
-          li
-            a(value='emacs') emacs
-          li 
-            a(value='sublime') sublime 
-          li
-            a(value='default') default
-
-      .btn-group(role='group')
-        button.btn.btn-default.dropdown-toggle#themeSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-          aria-expanded='false') Theme 
-          span.caret
-        ul.dropdown-menu#theme(aria-labelledby='themeSelect')
-          li 
-            a(value='solarized dark') solarized dark 
-          li
-            a(value='solarized light') solarized light
-          li 
-            a(value='blackboard') blackboard 
-          li 
-            a(value='dracula') dracula 
-          li 
-            a(value='monokai') monokai 
-          li 
-            a(value='zenburn') zenburn 
-          li 
-            a(value='tomorrow-night-bright') tomorrow-night-bright 
-          li 
-            a(value='tomorrow-night-eighties') tomorrow-night-eighties 
-          li
-            a(value='default') default
-
-  .container(style="margin-top: 16px;")
-    textarea#code(rows='30' name='code' style="border-radius: 4px;")
-
-  .container(style="margin-top: 16px;")
-    button.btn.btn-default#compile Fire in the hole!
-
-  .container
+  .collapse#settings
     .row
-      .col-md-6
+        .col
+        .col
+            .btn-group.dropup(role='toolbar')
+              .btn-group(role='group')
+                button.btn.btn-outline-secondary.dropdown-toggle#editorSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+                  aria-expanded='false') Editor Mode 
+                  span.caret
+                ul.dropdown-menu#editor-type(aria-labelledby='editorSelect')
+                  li.dropdown-item
+                    a(value='vim') vim
+                  li.dropdown-item
+                    a(value='emacs') emacs
+                  li.dropdown-item
+                    a(value='sublime') sublime 
+                  li.dropdown-item
+                    a(value='default') default
+
+              .btn-group(role='group')
+                button.btn.btn-outline-secondary.dropdown-toggle#themeSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+                  aria-expanded='false') Theme 
+                  span.caret
+                ul.dropdown-menu#theme(aria-labelledby='themeSelect')
+                  li.dropdown-item
+                    a(value='solarized dark') solarized dark 
+                  li.dropdown-item
+                    a(value='solarized light') solarized light
+                  li.dropdown-item
+                    a(value='blackboard') blackboard 
+                  li.dropdown-item
+                    a(value='dracula') dracula 
+                  li.dropdown-item
+                    a(value='monokai') monokai 
+                  li.dropdown-item
+                    a(value='zenburn') zenburn 
+                  li.dropdown-item
+                    a(value='tomorrow-night-bright') tomorrow-night-bright 
+                  li.dropdown-item
+                    a(value='tomorrow-night-eighties') tomorrow-night-eighties 
+                  li.dropdown-item
+                    a(value='default') default
+        .col
+
+  .container-fluid.collapse#io
+    .row
+      .col
         h4 Input
         form
           textarea.form-control#input(rows='5' name='input')
-      .col-md-6
+      .col
         h4 Output
         form
           textarea.form-control#output(rows='5' name='output')
 
+  nav.navbar.navbar-light.bg-light.fixed-bottom
+    .container-fluid
+      .btn-group.dropup(role='toolbar')
+        button.btn.btn-primary#compile(disabled) Run 
+        .btn-group(role='group')
+          button.btn.btn-outline-secondary.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Language 
+          ul.dropdown-menu#lang(aria-labelledby='langSelect')
+            li.dropdown-item
+              a(value='python') Python 2
+            li.dropdown-item
+              a(value='python3') Python 3
+            li.dropdown-item
+              a(value='gcc') C
+            li.dropdown-item
+              a(value='g++') C++
+
+      button.btn.btn-outline-secondary#output(data-toggle="collapse" data-target="#io") IO 
+      button.btn.btn-outline-secondary#settings-btn(data-toggle="collapse" data-target="#settings")
+          !{settings_icon}
+
   script.
     $(function() {
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"));
-      var compiler = "python2"
-      editor.setOption("lineNumbers", true);
-      editor.setOption("mode", "python");
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            mode: "python",
+            viewportMargin: Infinity,
+            extraKeys: {
+                "F11": function(cm) {
+                  cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                },
+                "Esc": function(cm) {
+                  if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                }
+            }
+      });
 
       editor.on("inputRead", function(cm, event) {
         var ch = cm.doc.getLine(event.to.line).substr(event.to.ch, 1);
@@ -90,37 +106,42 @@ block content
       });
 
       var sendRunRequest = function() {
+        if (!compiler) return;
         $.ajax({
           type: "POST",
           url: "/ide",
           data: "code=" + encodeURIComponent(editor.getValue()) + "&input=" 
                   + encodeURIComponent($('#input').val()) + "&compiler="
                   + encodeURIComponent(compiler), 
-          success: function(data) {
-            console.log(data);
+        }).done(function(data) {
             $('#output').val(data);
-          }
+            $('#io').collapse('show');
         });
       };
 
-      editor.setOption("extraKeys", {"Ctrl-Enter": sendRunRequest, 
-                                      "Ctrl-Space": "autocomplete"});
+      editor.setOption("extraKeys", {
+          "Ctrl-Enter": sendRunRequest, 
+          "Ctrl-Space": "autocomplete",
+          "F11": function(cm) {
+            cm.setOption("fullscreen", !cm.getOption("fullscreen"));
+          }
+      });
 
       $('button#compile').click(sendRunRequest);
 
-      $('.dropdown-menu#editor li a').click(function() {
+      $('.dropdown-menu#editor-type li').click(function() {
         selection = $(this).text();
         $('#editorSelect').text(selection + ' ');
-        var value = $(this).attr('value');
+        var value = $(this).children().first().attr('value');
         editor.setOption("keyMap", value);
         window.localStorage.setItem("fa_preferred_editor", value);
        $("<span class='caret'></span>").appendTo("#editorSelect");
       });
 
-      $('.dropdown-menu#lang li a').click(function() {
+      $('.dropdown-menu#lang li').click(function() {
         selection = $(this).text();
         $('#langSelect').text(selection + ' ');
-        var value = $(this).attr('value');
+        var value = $(this).children().first().attr('value');
         if (value === 'python3' || value === 'python') {
           editor.setOption("mode", "python");
         } else if (value === 'gcc') {
@@ -129,14 +150,17 @@ block content
           editor.setOption("mode", "text/x-c++src");
         }
         compiler = value;
+        if (compiler) {
+          $("#compile").prop("disabled", false);
+        }
         window.localStorage.setItem("fa_preferred_language", value);
         $("<span class='caret'></span>").appendTo("#langSelect");
       });
 
-      $('.dropdown-menu#theme li a').click(function() {
+      $('.dropdown-menu#theme li').click(function() {
         selection = $(this).text();
         $('#themeSelect').text(selection + ' ');
-        var value = $(this).attr('value');
+        var value = $(this).children().first().attr('value');
         editor.setOption("theme", value);
         window.localStorage.setItem("fa_preferred_theme", value);
         $("<span class='caret'></span>").appendTo("#themeSelect");
@@ -148,6 +172,9 @@ block content
       if (pLanguage) {
         var lMap = {'python': 'Python 2', 'python3': 'Python 3', 'g++': 'C++', 'gcc': 'C'};
         compiler = pLanguage;
+        if (compiler) {
+          $("#compile").prop("disabled", false);
+        }
         if (pLanguage === 'python3' || pLanguage === 'python') {
           editor.setOption("mode", "python");
         } else if (pLanguage === 'gcc') {
@@ -168,5 +195,4 @@ block content
         $('#themeSelect').text(pTheme + ' ');
         $("<span class='caret'></span>").appendTo("#themeSelect");
       }
-
     });

@@ -51,15 +51,13 @@ block content
   .container-fluid.collapse#io
     .row
       .col
-        h4 Input
-        form
-          textarea.form-control#input(rows='5' name='input')
+        p Input
+        textarea.form-control#input(name='input')
       .col
-        h4 Output
-        form
-          textarea.form-control#output(rows='5' name='output')
+        p Output
+        textarea.form-control#output(name='output')
 
-  nav.navbar.navbar-light.bg-light.fixed-bottom
+  nav.navbar.navbar-light.bg-light.fixed-bottom(style="z-index:99999999999;")
     .container-fluid
       .btn-group.dropup(role='toolbar')
         button.btn.btn-primary#compile(disabled) Run 

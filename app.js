@@ -1,18 +1,18 @@
-var express = require('express');
-var helmet = require('helmet');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+const express = require('express');
+const helmet = require('helmet');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
-var uva = require('./routes/uva');
-var codeforces = require('./routes/codeforces');
-var enforce = require('express-sslify');
+const routes = require('./routes/index');
+const users = require('./routes/users');
+const uva = require('./routes/uva');
+const codeforces = require('./routes/codeforces');
+const enforce = require('express-sslify');
 
-var app = express();
+const app = express();
 
 console.log(app.get('env'));
 // view engine setup

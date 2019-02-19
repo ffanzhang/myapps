@@ -1,14 +1,14 @@
-var express = require('express');
-var router = express.Router();
-var UVA = require('../models/UVA');
-var Promise = require('bluebird');
+const express = require('express');
+const router = express.Router();
+const UVA = require('../models/UVA');
+const Promise = require('bluebird');
 
 router.get('/', function(req, res, next) {
   res.render('uva');
 });
 
 router.get('/uids/:username', function(req, res, next) {
-  var uid = UVA.uname2uid(req.params.username);
+  let uid = UVA.uname2uid(req.params.username);
   uid.then(function(r) {
     if (r.statusCode == 200) {
       res.send(r.body);
@@ -23,7 +23,7 @@ router.get('/problems', function(req, res, next) {
   UVA.getProblems()
     .then(function(r) {
       if (r.statusCode == 200) {
-        var problems = JSON.parse(r.body);
+        let problems = JSON.parse(r.body);
         problems.sort(UVA.compareBySolves);
         res.send(problems);
       }
@@ -37,15 +37,15 @@ router.get('/problems/recommended/:username', function(req, res, next) {
     Promise.all([UVA.getSubmissionsByUsername(req.params.username), UVA.getProblems()])
     .then(function(r) {
 
-      // var submissions = JSON.parse(submissions.body).subs;
-      //var problems = JSON.parse(problems.body);
-      var submissions = JSON.parse(r[0].body).subs;
-      var problems = JSON.parse(r[1].body);
+      // let submissions = JSON.parse(submissions.body).subs;
+      //let problems = JSON.parse(problems.body);
+      let submissions = JSON.parse(r[0].body).subs;
+      let problems = JSON.parse(r[1].body);
       const PID = 1;
       const VID = 2;
       const AC = '90';
-      var o = {};
-      for (var i = 0; i < submissions.length; i++) {
+      let o = {};
+      for (let i = 0; i < submissions.length; i++) {
         if (submissions[i][VID] == AC) {
           o[submissions[i][PID]] = 1; 
         }

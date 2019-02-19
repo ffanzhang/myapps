@@ -1,7 +1,7 @@
-var express = require('express');
-var router = express.Router();
-var Codeforces = require('../models/Codeforces');
-var Promise = require('bluebird');
+const express = require('express');
+const router = express.Router();
+const Codeforces = require('../models/Codeforces');
+const Promise = require('bluebird');
 
 router.get('/', function(req, res, next) {
   res.render('codeforces');
@@ -14,23 +14,20 @@ function solvedCount(s1, s2) {
 router.get('/problems/recommended/:handle', function(req, res, next) {
   Promise.all([Codeforces.getSubmissions(req.params.handle), Codeforces.getProblems()])
     .then(function([submissions, problems]) {
-      var o = {}
-      for (var i = 0; i < submissions.length; i++) {
+      let o = {}
+      for (let i = 0; i < submissions.length; i++) {
         if (submissions[i].verdict == 'OK') { 
-          var contestId = submissions[i].problem.contestId;
-          var index = submissions[i].problem.index;
+          let contestId = submissions[i].problem.contestId;
+          let index = submissions[i].problem.index;
           o[contestId + index] = 1;
         }
       }
       function notSolved(problem) {
         return !(problem.contestId + problem.index in o);
       };
-      /*
-      var ps = problems.problems;
-      var ps = ps.filter(notSolved);
-      */
-      var stats = problems.problemStatistics;
-      var stats = stats.filter(notSolved);
+
+      let stats = problems.problemStatistics;
+      stats = stats.filter(notSolved);
       stats.sort(solvedCount);
       res.send(stats);
     })

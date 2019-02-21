@@ -4,6 +4,7 @@ html
     title= title
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    link(rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css")
     link(rel="stylesheet"
         href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
@@ -21,9 +22,14 @@ html
     link(rel='stylesheet', href='theme/tomorrow-night-bright.css')
     link(rel='stylesheet', href='theme/tomorrow-night-eighties.css')
     script(
-        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        src="//code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous")
+
+    script(src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous")
+
     script(
         src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
@@ -53,17 +59,17 @@ html
       }
       
       .CodeMirror {
-        height: 100%;
+        height: auto;
       }
 
       .CodeMirror-scroll {
-        height: 100%;
-        overflow-y: auto;
+        overflow-y: scroll;
+        overflow-x: hidden;
       }
 
       #codemirror-container {
-        height: 100% !important;
-        padding-bottom: 56px !important;
+        width: 100%;
+        height: 70%;
       }
 
       ul li {
@@ -141,8 +147,7 @@ html
       }
 
       textarea {
-        height: 140px !important;
-        width: 100%;
+        height: 100% !important;
         box-sizing: border-box;
       }
 

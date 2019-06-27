@@ -25,6 +25,13 @@ class ProgramRunnerService {
     let filename = path.join(foldername, crypto.randomBytes(32).toString('hex') + ext);
     let executablename = path.join(foldername, crypto.randomBytes(32).toString('hex'));
 
+    if (ext == ".java") {
+      let re = /\s*public\s+class\s+(\w+)\b/;
+      let classname = re.exec(source)[1];
+      filename = classname + ".java";
+      executablename = classname;
+    }
+
     if (!fs.existsSync(path.join('/tmp', 'tmpsrc'))) {
       execSync('mkdir tmpsrc', ProgramRunnerService.process_options());
     }
@@ -55,42 +62,63 @@ class ProgramRunnerService {
           res.send(out);
         });
         break;
-      case "gcc": {
-        let files = ProgramRunnerService.make_files(source, '.c');
-        let foldername = files[0];
-        let filename = files[1];
-        let executablename = files[2];
-        ProgramRunner.run('gcc', [filename, '-o', executablename], input, function(out, data) {
-          if (data == 0) {
-            ProgramRunner.run('./' + executablename, [], input, function(out, data) {
+      case "gcc":
+        {
+          let files = ProgramRunnerService.make_files(source, '.c');
+          let foldername = files[0];
+          let filename = files[1];
+          let executablename = files[2];
+          ProgramRunner.run('gcc', [filename, '-o', executablename], input, function(out, data) {
+            if (data == 0) {
+              ProgramRunner.run('./' + executablename, [], input, function(out, data) {
+                ProgramRunnerService.cleanup(foldername, filename, executablename);
+                res.send(out);
+              });
+            } else {
               ProgramRunnerService.cleanup(foldername, filename, executablename);
               res.send(out);
-            });
-          } else {
-            ProgramRunnerService.cleanup(foldername, filename, executablename);
-            res.send(out);
-          }
-        });
-        break;
-      }
-      case "g++": {
-        let files = ProgramRunnerService.make_files(source, '.cc');
-        let foldername = files[0];
-        let filename = files[1];
-        let executablename = files[2];
-        ProgramRunner.run('g++', [filename, '--std=c++11', '-o', executablename], input, function(out, data) {
-          if (data == 0) {
-            ProgramRunner.run('./' + executablename, [], input, function(out, data) {
+            }
+          });
+          break;
+        }
+      case "g++":
+        {
+          let files = ProgramRunnerService.make_files(source, '.cc');
+          let foldername = files[0];
+          let filename = files[1];
+          let executablename = files[2];
+          ProgramRunner.run('g++', [filename, '--std=c++11', '-o', executablename], input, function(out, data) {
+            if (data == 0) {
+              ProgramRunner.run('./' + executablename, [], input, function(out, data) {
+                ProgramRunnerService.cleanup(foldername, filename, executablename);
+                res.send(out);
+              });
+            } else {
               ProgramRunnerService.cleanup(foldername, filename, executablename);
               res.send(out);
-            });
-          } else {
-            ProgramRunnerService.cleanup(foldername, filename, executablename);
-            res.send(out);
-          }
-        });
-        break;
-      }
+            }
+          });
+          break;
+        }
+      case "java":
+        {
+          let files = ProgramRunnerService.make_files(source, '.java');
+          let foldername = files[0];
+          let filename = files[1];
+          let executablename = files[2];
+          ProgramRunner.run('javac', [filename], input, function(out, data) {
+            if (data == 0) {
+              ProgramRunner.run('java', [executablename], input, function(out, data) {
+                ProgramRunnerService.cleanup(foldername, filename, executablename);
+                res.send(out);
+              });
+            } else {
+              ProgramRunnerService.cleanup(foldername, filename, executablename);
+              res.send(out);
+            }
+          });
+          break;
+        }
       default:
         ProgramRunner.run('python', ['-c', source], input, function(out) {
           res.send(out);

@@ -1,9 +1,10 @@
 const Promise = require("bluebird");
+const Picker = require("./Picker");
 const request = Promise.promisify(require('request'));
 Promise.promisifyAll(request);
 const END_POINT = 'http://www.codeforces.com/api/';
 
-class Codeforces {
+class Codeforces extends Picker {
   static getSubmissions(handle) {
     let url = END_POINT + 'user.status?handle=' + handle;
     return request(url)

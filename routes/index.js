@@ -9,7 +9,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const Promise = require('bluebird');
 const octicons = require('octicons');
-const ProgramRunner = require('../models/ProgramRunner');
+const ProgramRunnerService = require('../models/ProgramRunnerService');
 
 const process_options = {
   cwd : '/tmp/',
@@ -61,55 +61,7 @@ let make_files = function(source, ext) {
 };
 
 router.post('/ide', function(req, res, next) {
-  let source = req.body.code;
-  let input = req.body.input;
-  let compiler = req.body.compiler;
-
-  if (compiler === 'python3') {
-    ProgramRunner.run('python3', ['-c', source], input, function(out, data) {
-      res.send(out);
-    });
-  } else if (compiler == 'python') {
-    ProgramRunner.run('python', ['-c', source], input, function(out, data) {
-      res.send(out);
-    });
-  } else if (compiler === 'gcc') {
-    files = make_files(source, '.c');
-    foldername = files[0];
-    filename = files[1];
-    executablename = files[2];
-    ProgramRunner.run('gcc', [filename, '-o', executablename], input, function(out, data) {
-      if (data == 0) {
-        ProgramRunner.run('./' + executablename, [], input, function(out, data) {
-          cleanup(foldername, filename, executablename);
-          res.send(out);
-        });
-      } else {
-        cleanup(foldername, filename, executablename);
-        res.send(out);
-      }
-    });
-  } else if (compiler === 'g++') {
-    files = make_files(source, '.cc');
-    foldername = files[0];
-    filename = files[1];
-    executablename = files[2];
-    ProgramRunner.run('g++', [filename, '--std=c++11', '-o', executablename], input, function(out, data) {
-      if (data == 0) {
-        ProgramRunner.run('./' + executablename, [], input, function(out, data) {
-          cleanup(foldername, filename, executablename);
-          res.send(out);
-        });
-      } else {
-        cleanup(foldername, filename, executablename);
-        res.send(out);
-      }
-    });
-  } else {
-    ProgramRunner.run('python', ['-c', source], input, function(out) {
-      res.send(out);
-    });
-  }
+    ProgramRunnerService.dispatch(req, res);
 });
 
 module.exports = router;

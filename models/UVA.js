@@ -1,9 +1,10 @@
 const Promise = require("bluebird");
+const Picker = require("./Picker");
 const request = Promise.promisify(require('request'));
 Promise.promisifyAll(request);
 const END_POINT = 'http://uhunt.felix-halim.net/api';
 
-class UVA {
+class UVA extends Picker {
 
   static uname2uid(username) {
     let url = END_POINT + '/uname2uid/' + username;

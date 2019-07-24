@@ -2,219 +2,126 @@ extends layout
 
 block content
   .jumbotron(style="background:transparent")
-    .container-fluid
+    .container-fluid#cfapp
       .row
           .col-sm-3
           .col-sm-6
             .input-group
-              input.form-control#handle(type='text', placeholder='handle', name='handle')
+              input.form-control#handle(type='text', placeholder='handle', name='handle', v-model="handle")
               span.input-group-append
-                button.btn.btn-primary#submitHandle Go!
+                button.btn.btn-primary#submitHandle(:class="{disabled : processing}", v-on:click="submitHandle")
+                  template(v-if="processing == true")
+                    div(class="preloader")
+                  template(v-else) Go!
+
           .col-sm-3
-      .row#tables
-        .col-md-3
+      .row#tables(v-if="problems.length > 0")
+        .col-md-4
           h4 Easy
-          table.table#problems(style="display: none;")
+          table.table#problems
             tbody
-        .col-md-3
+                tr
+                    td Problem Id
+                    td Solved
+                tr(v-for="problem in easy")
+                    td 
+                        a(:href="problem.url")
+                            {{ problem.contestId + problem.index}} 
+                    td {{ problem.solvedCount }} 
+        .col-md-4
           h4 Medium
-          table.table#problemsM(style="display: none;")
+          table.table#problemsM
             tbody
-        .col-md-3
+                tr
+                    td ProblemId
+                    td Solved
+                tr(v-for="problem in medi")
+                    td 
+                        a(:href="problem.url")
+                            {{ problem.contestId + problem.index }} 
+                    td {{ problem.solvedCount }} 
+        .col-md-4
           h4 Brutal
-          table.table#problemsH(style="display: none;")
+          table.table#problemsH
             tbody
-        .col-md-3
-          div
-            h4(style="display: inline-block; width: 50%;") Adaptive 
-            button.btn.btn-outline-primary(style="float: right;")#reset Reset
-          table.table#problemsA(style="display: none;")
-            tbody
-          button.btn.btn-success#tooEasy(style="float: left;") Too Easy
-          button.btn.btn-danger#tooHard(style="float: right;") Too Hard
-  
+                tr
+                    td ProblemId
+                    td Solved
+                tr(v-for="problem in hard")
+                    td 
+                        a(:href="problem.url")
+                            {{ problem.contestId + problem.index }} 
+                    td {{ problem.solvedCount }} 
+ 
+  script(src="//cdn.jsdelivr.net/npm/vue")
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
-    const CODEFORCES_DATA = "fa_data";
+    const CODEFORCES_PROBLEMS = "fa_codeforces_problems";
     const NUM_PER_PAGE = 10;
-    document.getElementById('tables').style.display = "none";
-    var convertToHtml = function(problems, start, num) {
-      var html = '<tr><td>Problem Id</td><td>Solved</td></tr>';
-      for (var j = start; j < start + num && j < problems.length; j++) {
-        var contestId = problems[j].contestId;
-        var index = problems[j].index;
-        url = "http://codeforces.com/";
+    let augmentUrl = function(problems) {
+      for (let i = 0; i < problems.length; i++) {
+        let contestId = problems[i].contestId;
+        let index = problems[i].index;
+        let url = "http://codeforces.com/";
         if (contestId < 100000) {
           url += "problemset/problem/" + contestId + "/" + index;
         } else {
           url += "gym/" + contestId;
         }
-        html += "<tr>";
-        html += "<td>" + 
-                "<a href='" + url + "' target='_blank'>" +
-                 contestId +
-                 index + 
-                "</a>" +
-                 "</td>";
-        html += "<td>" + problems[j].solvedCount + "</td>";
-        html += "</tr>";
-      }
-      return html;
-    };
-
-    var getLowerBound = function() {
-      var lo = window.localStorage.getItem("codeforces_lo");
-      if (lo) {
-        return parseInt(lo);
-      } else {
-        return 0;
+        problems[i].url = url;
       }
     }
-
-    var getHigherBound = function() {
-      var hi = window.localStorage.getItem("codeforces_hi");
-      if (hi) {
-        return parseInt(hi);
-      } else {
-        return Infinity;
-      }
-    }
-
-    var setLowerBound = function(lo) {
-      window.localStorage.setItem("codeforces_lo", parseInt(lo));
-    }
-
-    var setHigherBound = function(hi) {
-      window.localStorage.setItem("codeforces_hi", parseInt(hi));
-    }
-
-    var getProblems = function() {
-      var problems = window.localStorage.getItem("codeforces_problems");
+    let getProblems = function() {
+      let problems = window.localStorage.getItem(CODEFORCES_PROBLEMS);
       if (problems) {
         return JSON.parse(problems);
       } else {
         return {};
       }
     }
-
-    var renderProblems = function(problems) {
-      var html = convertToHtml(problems, 0, NUM_PER_PAGE);
-      var htmlM = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
-      var htmlH = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
-      var lo = getLowerBound();
-      var hi = Math.min(getHigherBound(), problems.length);
-      setLowerBound(lo);
-      setHigherBound(hi);
-      var mid = parseInt((lo + hi) / 2);
-      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
-
-      document.getElementById('problems').children[0].innerHTML += html;
-      document.getElementById('problemsM').children[0].innerHTML += htmlM;
-      document.getElementById('problemsH').children[0].innerHTML += htmlH;
-      document.getElementById('problemsA').children[0].innerHTML += htmlA;
-      document.getElementById('problems').style.display = "table";
-      document.getElementById('problemsM').style.display = "table";
-      document.getElementById('problemsH').style.display = "table";
-      document.getElementById('problemsA').style.display = "table";
-      document.getElementById('tables').style.removeProperty("display");
-    };
-
-    var getQ = function(username, callback) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          window.localStorage.setItem("codeforces_problems", this.responseText);
-          var problems = JSON.parse(this.responseText);
-          renderProblems(problems);
-          callback();
-        }
-      }
-      var url = '/codeforces/problems/recommended/' + username;
-      xhttp.open('GET', url, true);
-      xhttp.send();
-    }
-
-    var removeAllTableRows = function() {
-      var rows = document.querySelectorAll('tr');
-      for (var i = 0; i < rows.length; i++) {
-        rows[i].parentNode.removeChild(rows[i]);
-      }
-    }
-    var removeTableRowsById = function(id) {
-      var rows = document.querySelectorAll('table' + '#' + id + ' tr');
-      for (var i = 0; i < rows.length; i++) {
-        rows[i].parentNode.removeChild(rows[i]);
-      }
-    }
-    document.getElementById("tooHard").onclick = function() {
-      removeTableRowsById("problemsA");
-      var problems = getProblems();
-      var lo = getLowerBound();
-      var hi = Math.min(getHigherBound(), problems.length);
-      var mid = parseInt((lo + hi) / 2);
-      hi = mid;
-      setHigherBound(hi);
-      mid = parseInt((lo + hi) / 2);
-      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
-      document.getElementById('problemsA').children[0].innerHTML += htmlA;
-    }
-    document.getElementById("tooEasy").onclick = function() {
-      removeTableRowsById("problemsA");
-      var problems = getProblems();
-      var lo = getLowerBound();
-      var hi = Math.min(getHigherBound(), problems.length);
-      var mid = parseInt((lo + hi) / 2);
-      lo = mid + 1;
-      setLowerBound(lo);
-      mid = parseInt((lo + hi) / 2);
-      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
-      document.getElementById('problemsA').children[0].innerHTML += htmlA;
-    } 
-    document.getElementById("reset").onclick = function() {
-      removeTableRowsById("problemsA");
-      var problems = getProblems();
-      setLowerBound(0);
-      setHigherBound(problems.length);
-      var lo = getLowerBound();
-      var hi = Math.min(getHigherBound(), problems.length);
-      mid = parseInt((lo + hi) / 2);
-      var htmlA = convertToHtml(problems, mid, NUM_PER_PAGE);
-      document.getElementById('problemsA').children[0].innerHTML += htmlA;
-    }
-    document.getElementById('submitHandle').onclick = function() {
-      document.getElementById('tables').style.display = "none";
-      this.setAttribute("disabled", "disabled");
-      this.innerHTML = "<div class='preloader'></div>";
-      removeAllTableRows();
-      var that = this;
-      var handle = document.getElementById('handle').value;
-      window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, handle);
-      getQ(handle, function() {
-        document.getElementById('tables').style.removeProperty("display");
-        that.removeAttribute("disabled");
-        that.innerHTML = "Go!";
-      });
-    };
-
-    document.addEventListener("DOMContentLoaded", function(event) {
-      var handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
-      var problems = getProblems(); 
-      if (handle) {
-        document.getElementById('handle').value = handle;
-      }
-      if (problems && handle) {
-          renderProblems(problems);
-      } else {
-          if (handle) {
-            var btn = document.getElementById('submitHandle')
-            btn.setAttribute("disabled", "disabled");
-            btn.innerHTML = "<div class='preloader'></div>";
-            getQ(handle, function() {
-              document.getElementById('tables').style.removeProperty("display");
-              btn.removeAttribute("disabled");
-              btn.innerHTML = "Go!";
-            });
-          }
-      }
+    let cfapp = new Vue({
+            el: "#cfapp",
+            data: {
+              handle : "",
+              problems : {},
+              easy : "",
+              medi : "",
+              hard : "",
+              processing : false,
+            },
+            mounted: function() {
+              let handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
+              let problems = getProblems(); 
+              augmentUrl(problems);
+              let easy = problems.slice(0, 10);
+              let medi = problems.slice(problems.length/2, problems.length/2+10);
+              let hard = problems.slice(problems.length-10, problems.length);
+              this.handle = handle;
+              this.problems = problems;
+              this.easy = easy;
+              this.medi = medi;
+              this.hard = hard;
+            },
+            methods: {
+                submitHandle: function(event) {
+                    this.problems = {};
+                    this.processing = true;
+                    fetch("/codeforces/problems/recommended/" + this.handle)
+                        .then(res => res.json())
+                        .then((data) => {
+                            if (data.length == 0) {
+                                alert("not found");
+                            }
+                            window.localStorage.setItem(CODEFORCES_PROBLEMS, JSON.stringify(data));
+                            window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, this.handle);
+                            augmentUrl(data);
+                            this.problems = data;
+                            this.easy = this.problems.slice(0, 10);
+                            this.medi = this.problems.slice(this.problems.length/2, this.problems.length/2+10);
+                            this.hard = this.problems.slice(this.problems.length-10, this.problems.length);
+                            this.processing = false;
+                        });
+                }
+            }
     });
  

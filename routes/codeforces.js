@@ -32,7 +32,7 @@ router.get('/problems/recommended/:handle', function(req, res, next) {
       res.send(stats);
     })
     .catch(function(e) {
-      console.log(e);
+      res.send(e);
     });
 });
 

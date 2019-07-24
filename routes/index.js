@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const request = require('request');
-const octicons = require('octicons');
+const octicons = require('@primer/octicons');
 const ProgramRunnerService = require('../models/ProgramRunnerService');
 
 router.get('/', function(req, res, next) {

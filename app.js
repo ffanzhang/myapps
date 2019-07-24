@@ -24,7 +24,6 @@ app.use(enforce.HTTPS({trustProtoHeader: true}));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-//
 
 app.use(helmet());
 app.use(logger('dev'));
@@ -39,18 +38,6 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/uva', uva);
 app.use('/codeforces', codeforces);
-/*
-app.use(function(req, res, next) {
-  var protocol = (req.headers['x-forwarded-proto'] || '').toLowerCase();
-  console.log(protocol);
-
-  if (protocol != 'http') {
-    next();
-  } else {
-    res.redirect('https://' + req.hostname + req.url);
-  }
-});
-*/
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

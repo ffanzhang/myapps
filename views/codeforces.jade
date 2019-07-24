@@ -4,55 +4,55 @@ block content
   .jumbotron(style="background:transparent")
     .container-fluid#cfapp
       .row
-          .col-sm-3
-          .col-sm-6
-            .input-group
-              input.form-control#handle(type='text', placeholder='handle', name='handle', v-model="handle")
-              span.input-group-append
-                button.btn.btn-primary#submitHandle(:class="{disabled : processing}", v-on:click="submitHandle")
-                  template(v-if="processing == true")
-                    div(class="preloader")
-                  template(v-else) Go!
+        .col-sm-3
+        .col-sm-6
+          .input-group
+            input.form-control#handle(type='text', placeholder='handle', name='handle', v-model="handle")
+            span.input-group-append
+              button.btn.btn-primary#submitHandle(:class="{disabled : processing}", v-on:click="submitHandle")
+                template(v-if="processing == true")
+                  div(class="preloader")
+                template(v-else) Go!
 
-          .col-sm-3
+        .col-sm-3
       .row#tables(v-if="problems.length > 0")
         .col-md-4
           h4 Easy
           table.table#problems
             tbody
-                tr
-                    td Problem Id
-                    td Solved
-                tr(v-for="problem in easy")
-                    td 
-                        a(:href="problem.url")
-                            {{ problem.contestId + problem.index}} 
-                    td {{ problem.solvedCount }} 
+              tr
+                td Problem Id
+                td Solved
+              tr(v-for="problem in easy")
+                td 
+                  a(:href="problem.url")
+                    {{ problem.contestId + problem.index}} 
+                td {{ problem.solvedCount }} 
         .col-md-4
           h4 Medium
           table.table#problemsM
             tbody
-                tr
-                    td ProblemId
-                    td Solved
-                tr(v-for="problem in medi")
-                    td 
-                        a(:href="problem.url")
-                            {{ problem.contestId + problem.index }} 
-                    td {{ problem.solvedCount }} 
+              tr
+                td Problem Id
+                td Solved
+              tr(v-for="problem in medi")
+                td 
+                  a(:href="problem.url")
+                    {{ problem.contestId + problem.index }} 
+                td {{ problem.solvedCount }} 
         .col-md-4
           h4 Brutal
           table.table#problemsH
             tbody
-                tr
-                    td ProblemId
-                    td Solved
-                tr(v-for="problem in hard")
-                    td 
-                        a(:href="problem.url")
-                            {{ problem.contestId + problem.index }} 
-                    td {{ problem.solvedCount }} 
- 
+              tr
+                td Problem Id
+                td Solved
+              tr(v-for="problem in hard")
+                td 
+                  a(:href="problem.url")
+                    {{ problem.contestId + problem.index }} 
+                td {{ problem.solvedCount }} 
+
   script(src="//cdn.jsdelivr.net/npm/vue")
   script.
     const CODEFORCES_LOCAL_HANDLE = "fa_preferred_codeforces_handle";
@@ -80,48 +80,47 @@ block content
       }
     }
     let cfapp = new Vue({
-            el: "#cfapp",
-            data: {
-              handle : "",
-              problems : {},
-              easy : "",
-              medi : "",
-              hard : "",
-              processing : false,
-            },
-            mounted: function() {
-              let handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
-              let problems = getProblems(); 
-              augmentUrl(problems);
-              let easy = problems.slice(0, 10);
-              let medi = problems.slice(problems.length/2, problems.length/2+10);
-              let hard = problems.slice(problems.length-10, problems.length);
-              this.handle = handle;
-              this.problems = problems;
-              this.easy = easy;
-              this.medi = medi;
-              this.hard = hard;
-            },
-            methods: {
-                submitHandle: function(event) {
-                    this.problems = {};
-                    this.processing = true;
-                    fetch("/codeforces/problems/recommended/" + this.handle)
-                        .then(res => res.json())
-                        .then((data) => {
-                            if (data.length == 0) {
-                                alert("not found");
-                            }
-                            window.localStorage.setItem(CODEFORCES_PROBLEMS, JSON.stringify(data));
-                            window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, this.handle);
-                            augmentUrl(data);
-                            this.problems = data;
-                            this.easy = this.problems.slice(0, 10);
-                            this.medi = this.problems.slice(this.problems.length/2, this.problems.length/2+10);
-                            this.hard = this.problems.slice(this.problems.length-10, this.problems.length);
-                            this.processing = false;
-                        });
-                }
-            }
+      el: "#cfapp",
+      data: {
+        handle: "",
+        problems: {},
+        easy: "",
+        medi: "",
+        hard: "",
+        processing: false,
+      },
+      mounted: function() {
+        let handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
+        let problems = getProblems();
+        augmentUrl(problems);
+        let easy = problems.slice(0, 10);
+        let medi = problems.slice(problems.length / 2, problems.length / 2 + 10);
+        let hard = problems.slice(problems.length - 10, problems.length);
+        this.handle = handle;
+        this.problems = problems;
+        this.easy = easy;
+        this.medi = medi;
+        this.hard = hard;
+      },
+      methods: {
+        submitHandle: function(event) {
+          this.problems = {};
+          this.processing = true;
+          fetch("/codeforces/problems/recommended/" + this.handle)
+            .then(res => res.json())
+            .then((data) => {
+              if (data.length == 0) {
+                alert("not found");
+              }
+              window.localStorage.setItem(CODEFORCES_PROBLEMS, JSON.stringify(data));
+              window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, this.handle);
+              augmentUrl(data);
+              this.problems = data;
+              this.easy = this.problems.slice(0, 10);
+              this.medi = this.problems.slice(this.problems.length / 2, this.problems.length / 2 + 10);
+              this.hard = this.problems.slice(this.problems.length - 10, this.problems.length);
+              this.processing = false;
+            });
+        }
+      }
     });
- 

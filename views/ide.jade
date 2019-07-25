@@ -222,7 +222,7 @@ html
                     a(:value='theme') {{ theme }}
           .col
 
-      #io(:style="{height: recomputeHeight()}")
+      #io(:style="{height: showio ? recomputeHeight() : '0px'}")
         #input-container
           textarea.form-control#input(name='input', placeholder='input' v-model="input")
         #output-container
@@ -243,8 +243,10 @@ html
                 li.dropdown-item(v-for="lang in langs" v-on:click="setCurLang(lang)")
                   a(:value='lang') {{ lMap[lang] }}
 
-          button.btn.btn-outline-secondary#settings-btn(data-toggle="collapse" data-target="#settings")
-            !{settings_icon}
+          .btn-group  
+            button.btn.btn-outline-secondary#settings-btn(data-toggle="collapse" data-target="#settings")
+              !{settings_icon}
+            button.btn.btn-outline-secondary(@click="toggleIO()") io
 
   script(src="//cdn.jsdelivr.net/npm/vue")
   script.
@@ -275,7 +277,9 @@ html
           'g++': 'text/x-c++src',
           'java': 'text/x-java',
         },
+        lastioheight: 0,
         processing: false,
+        showio: true,
       },
       mounted: function() {
         let that = this;
@@ -311,16 +315,16 @@ html
         });
         window.setInterval(this.saveCode, 10000);
       },
-      created: function() {
-        window.addEventListener("resize", this.onresize);
-      },
-      destroyed: function() {
-        window.removeEventListener("resize", this.onresize);
-      },
       methods: {
-        onresize: function() {
-          $('#io').height($(window).height() - $(this).height() - 56);
-          this.ioHeight = "25%";
+        toggleIO : function() {
+          if (this.showio) {
+            this.lastioheight = $('#io').height();
+            $('#codemirror-container').height($(window).height() - 64);
+          } else {
+            $('#codemirror-container').height($(window).height() - this.lastioheight - 56);
+            $('#io').height(this.lastioheight);
+          }
+          this.showio = !this.showio;
         },
         recomputeHeight: function() {
           return window.innerHeight -

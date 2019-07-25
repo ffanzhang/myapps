@@ -7,7 +7,7 @@ block content
         .col-sm-3
         .col-sm-6
           .input-group
-            input.form-control#handle(type='text', placeholder='handle', name='handle', v-model="handle")
+            input.form-control#handle(type='text', placeholder='handle', name='handle', v-model="handle", @keydown.enter="submitHandle")
             span.input-group-append
               button.btn.btn-primary#submitHandle(:class="{disabled : processing}", v-on:click="submitHandle")
                 template(v-if="processing == true")
@@ -15,7 +15,7 @@ block content
                 template(v-else) Go!
 
         .col-sm-3
-      .row#tables(v-if="problems.length > 0")
+      .row#tables(v-if="problems && problems.length > 0")
         .col-md-4
           h4 Easy
           table.table#problems
@@ -25,7 +25,7 @@ block content
                 td Solved
               tr(v-for="problem in easy")
                 td 
-                  a(:href="problem.url")
+                  a(:href="problem.url" target="_blank")
                     {{ problem.contestId + problem.index}} 
                 td {{ problem.solvedCount }} 
         .col-md-4
@@ -37,7 +37,7 @@ block content
                 td Solved
               tr(v-for="problem in medi")
                 td 
-                  a(:href="problem.url")
+                  a(:href="problem.url" target="_blank")
                     {{ problem.contestId + problem.index }} 
                 td {{ problem.solvedCount }} 
         .col-md-4
@@ -49,7 +49,7 @@ block content
                 td Solved
               tr(v-for="problem in hard")
                 td 
-                  a(:href="problem.url")
+                  a(:href="problem.url" target="_blank")
                     {{ problem.contestId + problem.index }} 
                 td {{ problem.solvedCount }} 
 
@@ -82,29 +82,32 @@ block content
     let cfapp = new Vue({
       el: "#cfapp",
       data: {
-        handle: "",
-        problems: {},
-        easy: "",
-        medi: "",
-        hard: "",
+        handle: null,
+        problems: null,
+        easy: null,
+        medi: null,
+        hard: null,
         processing: false,
       },
       mounted: function() {
-        let handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
-        let problems = getProblems();
-        augmentUrl(problems);
-        let easy = problems.slice(0, 10);
-        let medi = problems.slice(problems.length / 2, problems.length / 2 + 10);
-        let hard = problems.slice(problems.length - 10, problems.length);
-        this.handle = handle;
-        this.problems = problems;
-        this.easy = easy;
-        this.medi = medi;
-        this.hard = hard;
+        this.handle = window.localStorage.getItem(CODEFORCES_LOCAL_HANDLE);
+        this.updateProblems(getProblems());
       },
       methods: {
+        updateProblems: function(problems) {
+            this.problems = problems;
+            if (problems) {
+                let l = this.problems.length;
+                this.easy = this.problems.slice(0, 10);
+                this.medi = this.problems.slice(l / 2, l / 2 + 10);
+                this.hard = this.problems.slice(l * 3 / 4 - 10, l * 3 / 4);
+                augmentUrl(this.easy);
+                augmentUrl(this.medi);
+                augmentUrl(this.hard);
+            } 
+        },
         submitHandle: function(event) {
-          this.problems = {};
+          this.problems = null;
           this.processing = true;
           fetch("/codeforces/problems/recommended/" + this.handle)
             .then(res => res.json())
@@ -112,13 +115,9 @@ block content
               if (data.length == 0) {
                 alert("not found");
               }
-              window.localStorage.setItem(CODEFORCES_PROBLEMS, JSON.stringify(data));
               window.localStorage.setItem(CODEFORCES_LOCAL_HANDLE, this.handle);
-              augmentUrl(data);
-              this.problems = data;
-              this.easy = this.problems.slice(0, 10);
-              this.medi = this.problems.slice(this.problems.length / 2, this.problems.length / 2 + 10);
-              this.hard = this.problems.slice(this.problems.length - 10, this.problems.length);
+              window.localStorage.setItem(CODEFORCES_PROBLEMS, JSON.stringify(data));
+              this.updateProblems(data);
               this.processing = false;
             });
         }

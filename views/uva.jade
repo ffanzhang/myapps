@@ -2,124 +2,127 @@ extends layout
 
 block content
   .jumbotron(style="background:transparent")
-    .container-fluid
+    .container-fluida#uvapp
       .row
         .col-sm-3
         .col-sm-6
-            .input-group
-              input.form-control#handle(type='text', placeholder='username', name='handle')
-              span.input-group-append
-                button.btn.btn-primary#submitHandle Go!
+          .input-group
+            input.form-control#handle(type='text', placeholder='username', name='handle', v-model='handle', @keydown.enter="submitHandle")
+            span.input-group-append
+              button.btn.btn-primary#submitHandle(:class="{disabled : processing}", v-on:click="submitHandle")
+                template(v-if="processing == true")
+                  div(class="preloader")
+                template(v-else) Go!
+
         .col-sm-3
-      .row#tables(style="margin-top: 16px;")
+      .row#tables(style="margin-top: 16px;" v-if="problems && problems.length > 0")
         .col-md-4
           h4 Easy
-          table.table.table-condensed#problems(style="display: none; margin-top: 16px; border-radius: 4px;")
+          table.table.table-condensed#problems(style="margin-top: 16px; border-radius: 4px;")
             tbody
+              tr
+                td ID
+                td Number
+                td Title
+                td Solves
+              tr(v-for="problem in easy")
+                td {{ problem[0] }}
+                td
+                  a(:href="problem.url" target="_blank") {{ problem[1] }}
+                td {{ problem[2] }}
+                td {{ problem[3] }}
         .col-md-4
           h4 Medium
-          table.table.table-condensed#problemsM(style="display: none; margin-top: 16px; border-radius: 4px;")
+          table.table.table-condensed#problemsM(style="margin-top: 16px; border-radius: 4px;")
             tbody
+              tr
+                td ID
+                td Number
+                td Title
+                td Solves
+              tr(v-for="problem in medi")
+                td {{ problem[0] }}
+                td
+                  a(:href="problem.url" target="_blank") {{ problem[1] }}
+                td {{ problem[2] }}
+                td {{ problem[3] }}
         .col-md-4
           h4 Brutal
-          table.table.table-condensed#problemsH(style="display: none; margin-top: 16px; border-radius: 4px;")
+          table.table.table-condensed#problemsH(style="margin-top: 16px; border-radius: 4px;")
             tbody
+              tr
+                td ID
+                td Number
+                td Title
+                td Solves
+              tr(v-for="problem in hard")
+                td {{ problem[0] }}
+                td
+                  a(:href="problem.url" target="_blank") {{ problem[1] }}
+                td {{ problem[2] }}
+                td {{ problem[3] }}
 
+  script(src="//cdn.jsdelivr.net/npm/vue")
   script.
     const UVA_LOCAL_USERNAME = "fa_preferred_uva_username";
+    const UVA_PROBLEMS = "fa_uva_problems";
     const NUM_PER_PAGE = 10;
-    document.getElementById('tables').style.display = "none";
-    var convertToHtml = function(problems, start, number) {
-      var html = '<tr><td>ID</td><td>Number</td><td>Title</td><td>Solves</td></tr>';
-      for (var j = start; j < start + number && j < problems.length; j++) {
-        html += "<tr>";
-        for (var i = 0; i < 4; i++) {
-          var content = String(problems[j][i]);
-          if (i == 1) {
-            var url = '//uva.onlinejudge.org/external/';
-            if (content.length < 4) {
-              url += content[0] + '/' + content + '.pdf';
-            } else {
-              url += content.substring(0, 3) + '/' + content + '.pdf';
-            }
-            html += "<td><a href='" + url + "' target='_blank'>" + content + "</a></td>";
-          } else {
-            html += "<td>" + problems[j][i] + "</td>";
+
+    let augmentUrl = function(problems) {
+      for (let i = 0; i < problems.length; i++) {
+        let content = String(problems[i][1]);
+        let url = "//uva.onlinejudge.org/external/";
+        if (content.length < 4) {
+          url += content[0] + '/' + content + '.pdf';
+        } else {
+          url += content.substring(0, 3) + '/' + content + '.pdf';
+        }
+        problems[i].url = url;
+      }
+    };
+
+    let uvapp = new Vue({
+      el: "#uvapp",
+      data: {
+        handle: null,
+        problems: null,
+        easy: null,
+        medi: null,
+        hard: null,
+        processing: false,
+      },
+      mounted: function() {
+        this.handle = window.localStorage.getItem(UVA_LOCAL_USERNAME);
+        this.problems = JSON.parse(window.localStorage.getItem(UVA_PROBLEMS));
+        this.updateProblems(this.problems);
+      },
+      methods: {
+        updateProblems: function(problems) {
+          this.problems = problems;
+          if (this.problems) {
+            this.problems = this.problems.problems;
+            let l = this.problems.length;
+            this.easy = this.problems.slice(0, 10);
+            this.medi = this.problems.slice(l / 2, l / 2 + 10);
+            this.hard = this.problems.slice(l * 3 / 4 - 10, l * 3 / 4);
+            augmentUrl(this.easy);
+            augmentUrl(this.medi);
+            augmentUrl(this.hard);
           }
-        }
-        html += "</tr>";
-      }
-      return html;
-    };
-
-    var renderProblems = function(problems) {
-      var htmlEasy = convertToHtml(problems, 0, NUM_PER_PAGE);
-      var htmlMedium = convertToHtml(problems, parseInt(problems.length / 2), NUM_PER_PAGE);
-      var htmlHard = convertToHtml(problems, problems.length - NUM_PER_PAGE, NUM_PER_PAGE);
-      document.getElementById('problems').children[0].innerHTML += htmlEasy;
-      document.getElementById('problemsM').children[0].innerHTML += htmlMedium;
-      document.getElementById('problemsH').children[0].innerHTML += htmlHard;
-      document.getElementById('problems').style.display = "table";
-      document.getElementById('problemsM').style.display = "table";
-      document.getElementById('problemsH').style.display = "table";
-      document.getElementById('tables').style.display = "";
-    };
-
-    var getQ = function(username, callback) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          var response = JSON.parse(this.responseText);
-          window.localStorage.setItem("uva_problems", this.responseText);
-          var problems = response.problems;
-          renderProblems(problems);
-          callback();
-        }
-      }
-      var url = '/uva/problems/recommended/' + username;
-      xhttp.open('GET', url, true);
-      xhttp.send();
-    }
-    document.getElementById('submitHandle').onclick = function() {
-      document.getElementById('tables').style.display = "none";
-      this.setAttribute("disabled", "disabled");
-      this.innerHTML = "<div class='preloader'></div>";
-      var username = document.getElementById('handle').value;
-      window.localStorage.setItem(UVA_LOCAL_USERNAME, username);
-      var rows = document.querySelectorAll('tr');
-      for (var i = 0; i < rows.length; i++) {
-        rows[i].parentNode.removeChild(rows[i]);
-      }
-      var that = this;
-      getQ(username, function() {
-        document.getElementById('tables').style.display = "";
-        that.removeAttribute("disabled");
-        that.innerHTML = "Go!";
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", function(event) {
-      var username = window.localStorage.getItem(UVA_LOCAL_USERNAME);
-      var problems = window.localStorage.getItem("uva_problems");
-      if (username) {
-        document.getElementById('handle').value = username;
-      }
-      if (username && problems) {
-          problems = JSON.parse(problems).problems;
-          console.log(problems);
-          renderProblems(problems);
-      } else {
-        if (username) {
-          var btn = document.getElementById('submitHandle');
-          btn.setAttribute("disabled", "disabled");
-          btn.innerHTML = "<div class='preloader'></div>";
-          getQ(username, function() {
-            document.getElementById('tables').style.display = "";
-            btn.removeAttribute("disabled");
-            btn.innerHTML = "Go!";
-          });
+        },
+        submitHandle: function(event) {
+          this.processing = true;
+          fetch("/uva/problems/recommended/" + this.handle)
+            .then(res => res.json())
+            .then((data) => {
+              if (data.length == 0) {
+                alert("not found");
+              }
+              window.localStorage.setItem(UVA_LOCAL_USERNAME, this.handle);
+              window.localStorage.setItem(UVA_PROBLEMS, JSON.stringify(data));
+              this.updateProblems(data);
+              this.processing = false;
+            });
         }
       }
     });
-    
-    

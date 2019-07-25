@@ -5,9 +5,9 @@ html
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
     link(rel="stylesheet"
-        href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-        crossorigin="anonymous")
+      href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous")
 
     link(rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css")
     link(rel='stylesheet', href='lib/codemirror.css')
@@ -23,22 +23,24 @@ html
     link(rel='stylesheet', href='theme/tomorrow-night-eighties.css')
 
     script(
-        src="//code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      src="//code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous")
+
+    script(src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
         crossorigin="anonymous")
 
-    script(src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-          crossorigin="anonymous")
+    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery.touch/1.1.0/jquery.touch.min.js")
 
     script(
-        src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous")
+      src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous")
     script(
-        src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous")
+      src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous")
     script(src='lib/codemirror.js')
     script(src='keymap/vim.js')
     script(src='keymap/sublime.js')
@@ -58,9 +60,9 @@ html
         height: 100%;
         width: 100%;
       }
-      
+
       .CodeMirror {
-        height: auto;
+        height: 100%;
         width: 100%;
       }
 
@@ -81,7 +83,7 @@ html
         position: fixed;
         display: block;
         background-color: #f8f9fa;
-        height: 25%;
+        /* height: 25%; */
         width: 100%;
         padding-bottom: 56px;
         z-index: 505050;
@@ -106,20 +108,20 @@ html
 
       #input-container,
       #output-container {
-          display: inline-block; 
-          position: relative; 
-          width: 50%; 
-          height: 100%;
-          top: 0;
-          padding: 12px;
-          box-sizing: border-box;
+        display: inline-block; 
+        position: relative; 
+        width: 50%; 
+        height: 100%;
+        top: 0;
+        padding: 12px;
+        box-sizing: border-box;
       }
 
       #input, #output {
-          width: 100%; 
-          height: 100%; 
-          position: relative; 
-          top: 0;
+        width: 100%; 
+        height: 100%; 
+        position: relative; 
+        top: 0;
       }
 
 
@@ -194,6 +196,7 @@ html
         box-sizing: border-box;
       }
   body
+    #ideapp
       #codemirror-container
         textarea#code(name='code')
 
@@ -204,209 +207,174 @@ html
             .btn-group.dropup(role='toolbar')
               .btn-group(role='group')
                 button.btn.btn-outline-secondary.dropdown-toggle#editorSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-                  aria-expanded='false' style="width: 100px;") Editor Mode 
-                  span.caret
+                  aria-expanded='false' style="width: 100px;") {{ cur_editor == null ? "Editor" : cur_editor }} 
+                span.caret
                 ul.dropdown-menu#editor-type(aria-labelledby='editorSelect')
-                  li.dropdown-item
-                    a(value='vim') vim
-                  li.dropdown-item
-                    a(value='emacs') emacs
-                  li.dropdown-item
-                    a(value='sublime') sublime 
-                  li.dropdown-item
-                    a(value='default') default
+                  li.dropdown-item(v-for="editor in editors" v-on:click="setCurEditor(editor)")
+                    a(:value='editor') {{ editor }} 
 
               .btn-group(role='group')
                 button.btn.btn-outline-secondary.dropdown-toggle#themeSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-                  aria-expanded='false' style="width: 200px;") Theme 
+                  aria-expanded='false' style="width: 200px;") {{ cur_theme == null ? "Theme" : cur_theme }} 
                   span.caret
                 ul.dropdown-menu#theme(aria-labelledby='themeSelect')
-                  li.dropdown-item
-                    a(value='solarized dark') solarized dark 
-                  li.dropdown-item
-                    a(value='solarized light') solarized light
-                  li.dropdown-item
-                    a(value='blackboard') blackboard 
-                  li.dropdown-item
-                    a(value='dracula') dracula 
-                  li.dropdown-item
-                    a(value='monokai') monokai 
-                  li.dropdown-item
-                    a(value='zenburn') zenburn 
-                  li.dropdown-item
-                    a(value='tomorrow-night-bright') tomorrow-night-bright 
-                  li.dropdown-item
-                    a(value='tomorrow-night-eighties') tomorrow-night-eighties 
-                  li.dropdown-item
-                    a(value='default') default
+                  li.dropdown-item(v-for="theme in themes" v-on:click="setCurTheme(theme)")
+                    a(:value='theme') {{ theme }}
           .col
 
-      #io
+      #io(:style="{height: recomputeHeight()}")
         #input-container
-          textarea.form-control#input(name='input', placeholder='input')
+          textarea.form-control#input(name='input', placeholder='input' v-model="input")
         #output-container
-          textarea.form-control#output(name='output', placeholder='output')
+          textarea.form-control#output(name='output', placeholder='output' v-model="output")
 
-    nav.navbar.navbar-light.bg-light.fixed-bottom(style="z-index:99999999999;")
-      .container-fluid
-        .btn-group.dropup(role='toolbar')
-          button.btn.btn-primary#compile(disabled) Run 
-          .btn-group(role='group', style="width: 100px;")
-            button.btn.btn-outline-secondary.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Language 
-            ul.dropdown-menu#lang(aria-labelledby='langSelect')
-              li.dropdown-item
-                a(value='python') Python 2
-              li.dropdown-item
-                a(value='python3') Python 3
-              li.dropdown-item
-                a(value='gcc') C
-              li.dropdown-item
-                a(value='g++') C++
-              li.dropdown-item
-                a(value='java') Java 
+      nav.navbar.navbar-light.bg-light.fixed-bottom(style="z-index:99999999999;")
+        .container-fluid
+          .btn-group.dropup(role='toolbar')
+            button.btn.btn-primary#compile(:disabled='cur_lang == null || processing', @click="sendRunRequest")
+              template(v-if="processing == true")
+                div(class="preloader")
+              template(v-else) Run 
+            .btn-group(role='group', style="width: 100px;")
+              button.btn.btn-outline-secondary.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true' 
+                aria-expanded='false') {{ cur_lang == null ? "Language" : lMap[cur_lang] }}
 
-        button.btn.btn-outline-secondary#settings-btn(data-toggle="collapse" data-target="#settings")
+              ul.dropdown-menu#langss(aria-labelledby='langSelect') 
+                li.dropdown-item(v-for="lang in langs" v-on:click="setCurLang(lang)")
+                  a(:value='lang') {{ lMap[lang] }}
+
+          button.btn.btn-outline-secondary#settings-btn(data-toggle="collapse" data-target="#settings")
             !{settings_icon}
 
-    script.
-      $(function() {
-        let editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-              lineNumbers: true,
-              mode: "python",
-              viewportMargin: Infinity,
-              extraKeys: {
-                  "F11": function(cm) {
-                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                  },
-                  "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                  }
-              }
-        });
-
-        let source = window.localStorage.getItem("source");
-        if (source) {
-            editor.setValue(source);
-        }
-
-        let saveCurrent = function() {
-          window.localStorage.setItem("source", editor.getValue());
-        }
-
-        window.setInterval(saveCurrent, 10000);
-        editor.on("inputRead", function(cm, event) {
-          let ch = cm.doc.getLine(event.to.line).substr(event.to.ch, 1);
-
-          // for now only autocomplete for alphanumeric chars
-          let alnum= /[A-Za-z0-9]/g;
-          if (alnum.test(ch)) {
-            editor.showHint({completeSingle: false});
-          }
-        });
-
-        let sendRunRequest = function() {
-          if (!compiler) return;
-          $.ajax({
-            type: "POST",
-            url: "/ide",
-            data: "code=" + encodeURIComponent(editor.getValue()) + "&input=" 
-                    + encodeURIComponent($('#input').val()) + "&compiler="
-                    + encodeURIComponent(compiler), 
-          }).done(function(data) {
-              $('#output').val(data);
-          });
-        };
-
-        editor.setOption("extraKeys", {
-            "Ctrl-Enter": sendRunRequest, 
+  script(src="//cdn.jsdelivr.net/npm/vue")
+  script.
+    let ideapp = new Vue({
+      el: "#ideapp",
+      data: {
+        editor: null,
+        cur_editor: null,
+        cur_theme: null,
+        cur_lang: null,
+        code: "",
+        input: "",
+        output: "",
+        editors: ['vim', 'emacs', 'sublime', 'default'],
+        themes: ['solarized dark', 'solarized light', 'blackboard', 'dracula', 'monokai', 'zenburn', 'tomorrow-night-bright', 'tomorrow-night-eighties', 'default'],
+        langs: ['python', 'python3', 'gcc', 'g++', 'java'],
+        lMap: {
+          'python': 'Python 2',
+          'python3': 'Python 3',
+          'g++': 'C++',
+          'gcc': 'C',
+          'java': 'Java'
+        },
+        modeMap: {
+          'python': 'python',
+          'python3': 'python',
+          'gcc': 'text/x-csrc',
+          'g++': 'text/x-c++src',
+          'java': 'text/x-java',
+        },
+        processing: false,
+      },
+      mounted: function() {
+        let that = this;
+        this.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+          lineNumbers: true,
+          mode: "python",
+          viewportMargin: Infinity,
+          extraKeys: {
+            "Esc": function(cm) {
+              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+            },
+            "Ctrl-Enter": that.sendRunRequest,
             "Ctrl-Space": "autocomplete",
             "F11": function(cm) {
               cm.setOption("fullscreen", !cm.getOption("fullscreen"));
             }
-        });
-
-        $('button#compile').click(sendRunRequest);
-
-        $('.dropdown-menu#editor-type li').click(function() {
-          selection = $(this).text();
-          $('#editorSelect').text(selection + ' ');
-          let value = $(this).children().first().attr('value');
-          editor.setOption("keyMap", value);
-          window.localStorage.setItem("fa_preferred_editor", value);
-         $("<span class='caret'></span>").appendTo("#editorSelect");
-        });
-
-        $('.dropdown-menu#lang li').click(function() {
-          selection = $(this).text();
-          $('#langSelect').text(selection + ' ');
-          let value = $(this).children().first().attr('value');
-          if (value === 'python3' || value === 'python') {
-            editor.setOption("mode", "python");
-          } else if (value === 'gcc') {
-            editor.setOption("mode", "text/x-csrc");
-          } else if (value === 'g++') {
-            editor.setOption("mode", "text/x-c++src");
           }
-          compiler = value;
-          if (compiler) {
-            $("#compile").prop("disabled", false);
-          }
-          window.localStorage.setItem("fa_preferred_language", value);
-          $("<span class='caret'></span>").appendTo("#langSelect");
         });
-
-        $('.dropdown-menu#theme li').click(function() {
-          selection = $(this).text();
-          $('#themeSelect').text(selection + ' ');
-          let value = $(this).children().first().attr('value');
-          editor.setOption("theme", value);
-          window.localStorage.setItem("fa_preferred_theme", value);
-          $("<span class='caret'></span>").appendTo("#themeSelect");
-        });
-
-        let pLanguage = window.localStorage.getItem("fa_preferred_language");
-        let pEditor = window.localStorage.getItem("fa_preferred_editor");
-        let pTheme = window.localStorage.getItem("fa_preferred_theme");
-        if (pLanguage) {
-          let lMap = {'python': 'Python 2', 'python3': 'Python 3', 'g++': 'C++', 'gcc': 'C'};
-          compiler = pLanguage;
-          if (compiler) {
-            $("#compile").prop("disabled", false);
-          }
-          if (pLanguage === 'python3' || pLanguage === 'python') {
-            editor.setOption("mode", "python");
-          } else if (pLanguage === 'gcc') {
-            editor.setOption("mode", "text/x-csrc");
-          } else if (pLanguage === 'g++') {
-            editor.setOption("mode", "text/x-c++src");
-          }
-          $('#langSelect').text(lMap[pLanguage] + ' ');
-          $("<span class='caret'></span>").appendTo("#langSelect");
-        }
-        if (pEditor) {
-          editor.setOption("keyMap", pEditor);
-          $('#editorSelect').text(pEditor + ' ');
-          $("<span class='caret'></span>").appendTo("#editorSelect");
-        }
-        if (pTheme) {
-          editor.setOption("theme", pTheme);
-          $('#themeSelect').text(pTheme + ' ');
-          $("<span class='caret'></span>").appendTo("#themeSelect");
-        }
-
-        editor.setSize($("#codemirror-container").width(), $("#codemirror-container").height());
-        let ratio = 1;
+        this.cur_editor = window.localStorage.getItem("fa_preferred_editor");
+        this.cur_theme = window.localStorage.getItem("fa_preferred_theme");
+        this.cur_language = window.localStorage.getItem("fa_preferred_language");
+        this.code = window.localStorage.getItem("code");
+        this.setCurEditor(this.cur_editor);
+        this.setCurTheme(this.cur_theme);
+        this.setCurLang(this.cur_language);
+        this.setCode(this.code);
         $('#codemirror-container').resizable({
           handles: "s",
           maxHeight: $(window).height() - 64,
           resize: function(event, ui) {
-            editor.setSize($(window).width(), $(this).height());
             $('#io').height($(window).height() - $(this).height() - 56);
-            ratio = $('#codemirror-container').height() / ($('#codemirror-container').height() + $("#io").height());
           }
         });
+        window.setInterval(this.saveCode, 10000);
+      },
+      created: function() {
+        window.addEventListener("resize", this.onresize);
+      },
+      destroyed: function() {
+        window.removeEventListener("resize", this.onresize);
+      },
+      methods: {
+        onresize: function() {
+          $('#io').height($(window).height() - $(this).height() - 56);
+          this.ioHeight = "25%";
+        },
+        recomputeHeight: function() {
+          return window.innerHeight -
+            document.getElementById("codemirror-container").offsetHeight + 'px';
+        },
+        setCurEditor: function(editor) {
+          if (editor == null) return;
+          this.cur_editor = editor;
+          this.editor.setOption("keyMap", editor);
+          window.localStorage.setItem("fa_preferred_editor", editor);
 
-        window.onbeforeunload = function (e) {
-          saveCurrent();
+        },
+        setCurTheme: function(theme) {
+          if (theme == null) return;
+          this.cur_theme = theme;
+          this.editor.setOption("theme", theme);
+          window.localStorage.setItem("fa_preferred_theme", theme);
+        },
+        setCurLang: function(lang) {
+          if (lang == null) return;
+          this.cur_lang = lang;
+          this.editor.setOption("mode", this.modeMap[lang]);
+          window.localStorage.setItem("fa_preferred_language", lang);
+        },
+        setCode: function(code) {
+          if (code == null) return;
+          this.code = code;
+          this.editor.setValue(code);
+          window.localStorage.setItem("code", code);
+        },
+        saveCode: function() {
+          window.localStorage.setItem("code", this.editor.getValue());
+        },
+        sendRunRequest: function() {
+          this.processing = true;
+          this.code = this.editor.getValue();
+          window.localStorage.setItem("code", this.code);
+          let data = {
+            code: this.code,
+            input: this.input,
+            compiler: this.cur_lang
+          };
+          fetch("/ide", {
+              method: "POST",
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(data)
+            })
+            .then(res => res.text())
+            .then(msg => {
+              this.output = msg;
+              this.processing = false;
+            });
         }
-      });
+      }
+    });

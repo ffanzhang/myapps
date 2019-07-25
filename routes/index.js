@@ -5,7 +5,7 @@ const octicons = require('@primer/octicons');
 const ProgramRunnerService = require('../models/ProgramRunnerService');
 
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Fan\'s Apps' });
+  res.render('index', { title: 'fan\'s apps' });
 });
 
 router.get('/codeforcesqp', function(req, res, next) {

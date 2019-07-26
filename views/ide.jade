@@ -73,31 +73,39 @@ html
 
       #codemirror-container {
         position: fixed;
-        top: 0;
+        margin-top: 64px;
+        padding-bottom: 64px;
         display: block;
-        height: 75%;
         width: 100% !important;
+      }
+
+      .codemirror-container-full {
+        top: 0;
+        height: 100%;
+      }
+      .codemirror-container-part {
+        top: 25%;
+        height: 75%;
       }
 
       #io {
         position: fixed;
-        display: block;
+        top: 0;
+        margin-top: 64px;
+        height: 25%;
         background-color: #f8f9fa;
-        /* height: 25%; */
-        width: 100%;
-        padding-bottom: 56px;
+        width: 100% ! important;
         z-index: 505050;
-        bottom: 0;
       }
 
       #input-header,
       #output-header {
         display: inline-block;
-        position: relative; 
+        position: relative;
         padding: 12px;
         margin: 0;
-        height: 20px; 
-        width: 50%; 
+        height: 20px;
+        width: 50%;
         box-sizing: border-box;
       }
 
@@ -108,9 +116,9 @@ html
 
       #input-container,
       #output-container {
-        display: inline-block; 
-        position: relative; 
-        width: 50%; 
+        display: inline-block;
+        position: relative;
+        width: 50%;
         height: 100%;
         top: 0;
         padding: 12px;
@@ -118,9 +126,9 @@ html
       }
 
       #input, #output {
-        width: 100%; 
-        height: 100%; 
-        position: relative; 
+        width: 100%;
+        height: 100%;
+        position: relative;
         top: 0;
       }
 
@@ -196,57 +204,56 @@ html
         box-sizing: border-box;
       }
   body
-    #ideapp
-      #codemirror-container
-        textarea#code(name='code')
+    #ideapp(style="positon: relative")
+      nav.navbar.navbar-light.bg-lightp.fixed-top(style="z-index:99999999999; top: 0px;")
+        .btn-group.dropdown(role='toolbar')
+          button.btn.btn-primary#compile(:disabled='cur_lang == null || processing', @click="sendRunRequest")
+            template(v-if="processing == true")
+              div(class="preloader")
+            template(v-else) Run
+          .btn-group(role='group', style="width: 100px;")
+            button.btn.btn-outline-secondary.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+              aria-expanded='false') {{ cur_lang == null ? "Language" : lMap[cur_lang] }}
 
-      .collapse#settings
-        .row
-          .col
-          .col
-            .btn-group.dropup(role='toolbar')
-              .btn-group(role='group')
-                button.btn.btn-outline-secondary.dropdown-toggle#editorSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-                  aria-expanded='false' style="width: 100px;") {{ cur_editor == null ? "Editor" : cur_editor }} 
-                span.caret
-                ul.dropdown-menu#editor-type(aria-labelledby='editorSelect')
-                  li.dropdown-item(v-for="editor in editors" v-on:click="setCurEditor(editor)")
-                    a(:value='editor') {{ editor }} 
+            ul.dropdown-menu#langss(aria-labelledby='langSelect')
+              li.dropdown-item(v-for="lang in langs" v-on:click="setCurLang(lang)")
+                a(:value='lang') {{ lMap[lang] }}
 
-              .btn-group(role='group')
-                button.btn.btn-outline-secondary.dropdown-toggle#themeSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
-                  aria-expanded='false' style="width: 200px;") {{ cur_theme == null ? "Theme" : cur_theme }} 
+        .btn-group
+          button.btn.btn-outline-secondary#settings-btn(data-toggle="collapse" data-target="#settings")
+            !{settings_icon}
+          button.btn.btn-outline-secondary(@click="toggleIO()") io
+
+        .collapse#settings
+          .row
+            .col
+            .col
+              .btn-group.dropup(role='toolbar')
+                .btn-group(role='group')
+                  button.btn.btn-outline-secondary.dropdown-toggle#editorSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+                    aria-expanded='false' style="width: 100px;") {{ cur_editor == null ? "Editor" : cur_editor }}
                   span.caret
-                ul.dropdown-menu#theme(aria-labelledby='themeSelect')
-                  li.dropdown-item(v-for="theme in themes" v-on:click="setCurTheme(theme)")
-                    a(:value='theme') {{ theme }}
-          .col
+                  ul.dropdown-menu#editor-type(aria-labelledby='editorSelect')
+                    li.dropdown-item(v-for="editor in editors" v-on:click="setCurEditor(editor)")
+                      a(:value='editor') {{ editor }}
 
-      #io(:style="{height: showio ? recomputeHeight() : '0px'}")
+                .btn-group(role='group')
+                  button.btn.btn-outline-secondary.dropdown-toggle#themeSelect(type='button' data-toggle='dropdown' aria-haspopup='true'
+                    aria-expanded='false' style="width: 200px;") {{ cur_theme == null ? "Theme" : cur_theme }}
+                    span.caret
+                  ul.dropdown-menu#theme(aria-labelledby='themeSelect')
+                    li.dropdown-item(v-for="theme in themes" v-on:click="setCurTheme(theme)")
+                      a(:value='theme') {{ theme }}
+            .col
+
+      #io(v-if="showio")
         #input-container
           textarea.form-control#input(name='input', placeholder='input' v-model="input")
         #output-container
           textarea.form-control#output(name='output', placeholder='output' v-model="output")
+      #codemirror-container(:class="{'codemirror-container-part' : showio, 'codemirror-container-full' : !showio}")
+          textarea#code(name='code')
 
-      nav.navbar.navbar-light.bg-light.fixed-bottom(style="z-index:99999999999;")
-        .container-fluid
-          .btn-group.dropup(role='toolbar')
-            button.btn.btn-primary#compile(:disabled='cur_lang == null || processing', @click="sendRunRequest")
-              template(v-if="processing == true")
-                div(class="preloader")
-              template(v-else) Run 
-            .btn-group(role='group', style="width: 100px;")
-              button.btn.btn-outline-secondary.dropdown-toggle#langSelect(type='button' data-toggle='dropdown' aria-haspopup='true' 
-                aria-expanded='false') {{ cur_lang == null ? "Language" : lMap[cur_lang] }}
-
-              ul.dropdown-menu#langss(aria-labelledby='langSelect') 
-                li.dropdown-item(v-for="lang in langs" v-on:click="setCurLang(lang)")
-                  a(:value='lang') {{ lMap[lang] }}
-
-          .btn-group  
-            button.btn.btn-outline-secondary#settings-btn(data-toggle="collapse" data-target="#settings")
-              !{settings_icon}
-            button.btn.btn-outline-secondary(@click="toggleIO()") io
 
   script(src="//cdn.jsdelivr.net/npm/vue")
   script.
@@ -306,29 +313,11 @@ html
         this.setCurTheme(this.cur_theme);
         this.setCurLang(this.cur_language);
         this.setCode(this.code);
-        $('#codemirror-container').resizable({
-          handles: "s",
-          maxHeight: $(window).height() - 64,
-          resize: function(event, ui) {
-            $('#io').height($(window).height() - $(this).height() - 56);
-          }
-        });
         window.setInterval(this.saveCode, 10000);
       },
       methods: {
-        toggleIO : function() {
-          if (this.showio) {
-            this.lastioheight = $('#io').height();
-            $('#codemirror-container').height($(window).height() - 64);
-          } else {
-            $('#codemirror-container').height($(window).height() - this.lastioheight - 56);
-            $('#io').height(this.lastioheight);
-          }
+        toggleIO: function() {
           this.showio = !this.showio;
-        },
-        recomputeHeight: function() {
-          return window.innerHeight -
-            document.getElementById("codemirror-container").offsetHeight + 'px';
         },
         setCurEditor: function(editor) {
           if (editor == null) return;
